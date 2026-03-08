@@ -1,14 +1,13 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Removed isHeroVisible logic so the banner always shows
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full">
-      {/* Green Top Banner - ADC Green */}
+      {/* Green Top Banner */}
       <div className="bg-[#008751] text-white text-center transition-all duration-300 ease-in-out origin-top translate-y-0 opacity-100">
         <p className="text-sm md:text-base font-bold py-2">
           Powered by Movement for Amaechi Presidency ( MAP )
@@ -57,16 +56,18 @@ const Header = () => {
             {/* Desktop CTA Buttons */}
             <div className="hidden lg:flex items-center gap-4">
               <a
-                href="support"
+                href="https://adc.org.ng/membership"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-[#008751] text-white px-8 py-3 rounded-md font-bold text-sm tracking-wider hover:bg-[#006b40] transition-all duration-300 shadow-md hover:shadow-lg"
               >
-                SUPPORT THE CAMPAIGN
+                ADC PARTY REGISTRATION
               </a>
               <a
-                href="volunteer"
+                href="registration"
                 className="bg-[#FF6B35] text-white px-8 py-3 rounded-md font-bold text-sm tracking-wider hover:bg-[#e55a28] transition-all duration-300 shadow-md hover:shadow-lg"
               >
-                VOLUNTEER
+                REGISTRATION
               </a>
             </div>
 
@@ -111,16 +112,18 @@ const Header = () => {
 
                 <div className="flex flex-col gap-3 mt-4">
                   <a
-                    href="support"
+                    href="https://adc.org.ng/membership"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-[#008751] text-white px-6 py-3 rounded-md font-bold text-sm tracking-wider hover:bg-[#006b40] transition-all duration-300 text-center shadow-md"
                   >
-                    SUPPORT THE CAMPAIGN
+                    ADC PARTY REGISTRATION
                   </a>
                   <a
-                    href="volunteer"
+                    href="registration"
                     className="bg-[#FF6B35] text-white px-6 py-3 rounded-md font-bold text-sm tracking-wider hover:bg-[#e55a28] transition-all duration-300 text-center shadow-md"
                   >
-                    VOLUNTEER
+                    REGISTRATION
                   </a>
                 </div>
               </div>

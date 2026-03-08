@@ -13,13 +13,13 @@ const Footer = () => {
         </p>
       </div>
       <div className="flex items-center gap-3">
-        <a href="#">
+        <a href="https://www.facebook.com/profile.php?id=61588365249213">
           <Image src={assets.facebook_icon} alt="facebook_icon" />
         </a>
-        <a href="#">
+        <a href="https://x.com/map9ja?s=11">
           <Image src={assets.twitter_icon} alt="twitter_icon" />
         </a>
-        <a href="#">
+        <a href="https://www.instagram.com/map.9ja?igsh=MTViMGhkOXlla2w4YQ==">
           <Image src={assets.instagram_icon} alt="instagram_icon" />
         </a>
       </div>

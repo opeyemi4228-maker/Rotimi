@@ -2,79 +2,80 @@ import React from 'react';
 import { ArrowRight, Clock, ExternalLink } from 'lucide-react';
 import { assets } from '@/assets/assets';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const AmaechiNews = () => {
   const featuredNews = {
-    image: assets.Grad,
-    title: "Amaechi Graduates with Law Degree - A Testament to Lifelong Learning",
-    date: "20 November, 2022",
-    readTime: "5 MIN READ",
-    description: "In a remarkable display of dedication to personal development, Rt. Hon. Rotimi Amaechi announced his graduation with a law degree, showcasing his commitment to continuous learning even while serving at the highest levels of government.",
-    source: "Premium Times Nigeria",
-    category: "Personal Achievement"
+    image: assets.Pro1,
+    title: "Amaechi Storms Electronic Transmission Protest, Demands Electoral Transparency",
+    date: "11 February, 2026",
+    readTime: "4 MIN READ",
+    description: "Former Rivers State Governor and ex-Minister of Transportation joins protesters in Abuja, lending his voice to renewed calls for the protection and full implementation of electronic transmission of election results. Amaechi emphasized that credible elections remain the bedrock of any functional democracy.",
+    source: "Campaign News Desk",
+    category: "Electoral Reform"
   };
 
   const sideNews = [
     {
-      image: assets.Emir,
-      title: "President Buhari Congratulates Amaechi on Prestigious Daura Chieftaincy Title",
-      date: "5 February, 2022",
-      readTime: "4 MIN READ",
-      source: "The Guardian Nigeria",
-      category: "National Honour"
+      image: assets.Camp2,
+      title: "Amaechi Joins ADC AMAC Chairman Flagbearer on Campaign Trail",
+      date: "14 February, 2026",
+      readTime: "3 MIN READ",
+      source: "Campaign News Desk",
+      category: "Campaign"
     },
     {
-      image: assets.Amae,
-      title: "Amaechi Receives Highest Catholic Knights Promotion - Knight of Saint John",
-      date: "19 August, 2021",
+      image: assets.Camp1,
+      title: "ADC Mobilizes 100,000+ Volunteers Nationwide for 2027",
+      date: "8 February, 2026",
       readTime: "4 MIN READ",
-      source: "Catholic Church Nigeria",
-      category: "Religious Honour"
+      source: "Campaign News Desk",
+      category: "Campaign"
     }
   ];
 
   const bottomNews = [
     {
-      title: "Buhari Reappoints Amaechi as Campaign Director-General - Trust in Proven Leadership",
-      date: "20 September, 2018",
+      title: "Amaechi's Track Record: 1,763+ KM Rail Infrastructure Delivered",
+      date: "10 February, 2026",
+      readTime: "6 MIN READ",
+      source: "Infrastructure Desk",
+      category: "Governance"
+    },
+    {
+      title: "300+ Schools Built: Amaechi's Education Legacy in Rivers State",
+      date: "9 February, 2026",
       readTime: "5 MIN READ",
-      source: "ThisDay Live",
-      category: "Political Leadership"
+      source: "Education Correspondent",
+      category: "Governance"
     },
     {
-      title: "Senate Grants Amaechi 'Take a Bow' - Recognition of Distinguished Service Record",
-      date: "24 July, 2019",
-      readTime: "4 MIN READ",
-      source: "Channels Television",
-      category: "National Recognition"
-    },
-    {
-      title: "Amaechi Retains Transportation Portfolio - Continuity in Infrastructure Development",
-      date: "21 August, 2019",
-      readTime: "3 MIN READ",
-      source: "Punch Newspapers",
-      category: "Ministerial Reappointment"
+      title: "Amaechi Calls for Strengthened Anti-Corruption Framework",
+      date: "6 February, 2026",
+      readTime: "5 MIN READ",
+      source: "Governance Desk",
+      category: "Governance"
     }
   ];
 
   const additionalNews = [
     {
-      title: "Amaechi Declares Presidential Ambition - Ready to Serve Nigeria at Highest Level",
-      date: "9 April, 2022",
-      readTime: "6 MIN READ",
-      source: "Vanguard News"
-    },
-    {
-      title: "Dame Judith Amaechi @ 50 - Celebrating Partnership in Public Service",
-      date: "15 December, 2020",
-      readTime: "4 MIN READ",
-      source: "Vanguard Nigeria"
-    },
-    {
-      title: "New Catholic Honour Tasks Amaechi to Hit the Mark in Public Service",
-      date: "21 August, 2019",
+      title: "Amaechi Graduates with Law Degree - A Testament to Lifelong Learning",
+      date: "20 November, 2022",
       readTime: "5 MIN READ",
-      source: "ThisDay"
+      source: "Premium Times Nigeria"
+    },
+    {
+      title: "Senate Grants Amaechi 'Take a Bow' - Recognition of Distinguished Service",
+      date: "24 July, 2019",
+      readTime: "4 MIN READ",
+      source: "Channels Television"
+    },
+    {
+      title: "President Buhari Congratulates Amaechi on Prestigious Daura Chieftaincy",
+      date: "5 February, 2022",
+      readTime: "4 MIN READ",
+      source: "The Guardian Nigeria"
     }
   ];
 
@@ -91,16 +92,19 @@ const AmaechiNews = () => {
               Media Coverage
             </h2>
           </div>
-          <button className="flex items-center gap-2 bg-[#008751] text-white px-6 md:px-8 py-3 md:py-4 rounded-md hover:bg-[#006b40] transition-all duration-300 font-bold text-sm tracking-wide shadow-lg hover:shadow-xl group transform hover:scale-105">
+          <Link 
+            href="/news"
+            className="flex items-center gap-2 bg-[#008751] text-white px-6 md:px-8 py-3 md:py-4 rounded-md hover:bg-[#006b40] transition-all duration-300 font-bold text-sm tracking-wide shadow-lg hover:shadow-xl group transform hover:scale-105"
+          >
             See all news
             <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} strokeWidth={2.5} />
-          </button>
+          </Link>
         </div>
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
           {/* Featured Article - Takes 2 columns */}
-          <div className="lg:col-span-2 group cursor-pointer bg-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+          <Link href="/news" className="lg:col-span-2 group cursor-pointer bg-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
             <div className="relative overflow-hidden aspect-[16/9]">
               <Image
                 src={featuredNews.image}
@@ -128,17 +132,21 @@ const AmaechiNews = () => {
               <p className="text-gray-700 text-sm sm:text-base leading-relaxed mb-4 md:mb-6">
                 {featuredNews.description}
               </p>
-              <button className="inline-flex items-center gap-2 text-[#008751] font-bold text-sm hover:gap-3 transition-all duration-300">
+              <span className="inline-flex items-center gap-2 text-[#008751] font-bold text-sm hover:gap-3 transition-all duration-300">
                 Read Full Article
                 <ExternalLink size={16} />
-              </button>
+              </span>
             </div>
-          </div>
+          </Link>
 
           {/* Side Articles - Stack vertically */}
           <div className="flex flex-col gap-6 md:gap-8">
             {sideNews.map((news, index) => (
-              <div key={index} className="group cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+              <Link 
+                href="/news"
+                key={index} 
+                className="group cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden"
+              >
                 <div className="relative overflow-hidden aspect-[16/9]">
                   <Image
                     src={news.image}
@@ -166,7 +174,7 @@ const AmaechiNews = () => {
                     <span className="text-[#FF6B35] font-semibold">• {news.source}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -174,7 +182,11 @@ const AmaechiNews = () => {
         {/* Bottom Row - Text Only Articles */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 pt-6 md:pt-8 border-t-2 border-gray-200">
           {bottomNews.map((news, index) => (
-            <div key={index} className="group cursor-pointer bg-white rounded-xl p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:transform hover:scale-105">
+            <Link 
+              href="/news"
+              key={index} 
+              className="group cursor-pointer bg-white rounded-xl p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:transform hover:scale-105"
+            >
               <span 
                 className="inline-block px-3 py-1 rounded-md text-xs font-bold mb-3 text-white"
                 style={{ backgroundColor: index % 2 === 0 ? '#008751' : '#FF6B35' }}
@@ -192,7 +204,7 @@ const AmaechiNews = () => {
                 </span>
               </div>
               <span className="text-[#FF6B35] text-xs font-bold">{news.source}</span>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -203,7 +215,10 @@ const AmaechiNews = () => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {additionalNews.map((news, index) => (
-              <div key={index} className="group cursor-pointer bg-gradient-to-br from-white to-gray-50 rounded-lg p-5 md:p-6 border-l-4 hover:border-l-8 transition-all duration-300 shadow-md hover:shadow-lg"
+              <Link 
+                href="/news"
+                key={index} 
+                className="group cursor-pointer bg-gradient-to-br from-white to-gray-50 rounded-lg p-5 md:p-6 border-l-4 hover:border-l-8 transition-all duration-300 shadow-md hover:shadow-lg"
                 style={{ borderColor: index % 2 === 0 ? '#008751' : '#FF6B35' }}
               >
                 <h4 className="text-base font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#008751] transition-colors">
@@ -217,7 +232,7 @@ const AmaechiNews = () => {
                   </span>
                 </div>
                 <span className="text-[#FF6B35] text-xs font-bold">{news.source}</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -229,7 +244,7 @@ const AmaechiNews = () => {
               Stay Updated
             </h3>
             <p className="text-gray-600 text-base md:text-lg mb-6 md:mb-8 max-w-2xl mx-auto">
-              Get the latest news and updates about Rt. Hon. Rotimi Amaechi's initiatives and public service
+              Get the latest news and updates about Rt. Hon. Rotimi Amaechi's campaign and initiatives
             </p>
             <form className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
               <input

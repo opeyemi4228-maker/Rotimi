@@ -39,16 +39,16 @@ const Footer = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-center items-center gap-8 flex-wrap">
             <h1 className="font-bold text-2xl">Follow Us on our Social Media</h1>
-            <a href="#" className="hover:opacity-70 transition-opacity duration-300" aria-label="X">
+            <a href="https://x.com/map9ja?s=11" className="hover:opacity-70 transition-opacity duration-300" aria-label="X">
               <img src="https://img.icons8.com/ios-filled/100/twitterx--v1.png" alt="X" className="w-12 h-12" />
             </a>
-            <a href="#" className="hover:opacity-70 transition-opacity duration-300" aria-label="TikTok">
+            <a href="https://www.tiktok.com/@map.9ja?_r=1&_t=ZS-94FStXknDvN" className="hover:opacity-70 transition-opacity duration-300" aria-label="TikTok">
               <img src="https://img.icons8.com/ios-filled/100/tiktok--v1.png" alt="TikTok" className="w-12 h-12" />
             </a>
-            <a href="#" className="hover:opacity-70 transition-opacity duration-300" aria-label="Facebook">
+            <a href="https://www.facebook.com/profile.php?id=61588365249213" className="hover:opacity-70 transition-opacity duration-300" aria-label="Facebook">
               <img src="https://img.icons8.com/ios-filled/100/facebook-new.png" alt="Facebook" className="w-12 h-12" />
             </a>
-            <a href="#" className="hover:opacity-70 transition-opacity duration-300" aria-label="Instagram">
+            <a href="https://www.instagram.com/map.9ja?igsh=MTViMGhkOXlla2w4YQ==" className="hover:opacity-70 transition-opacity duration-300" aria-label="Instagram">
               <img src="https://img.icons8.com/ios-filled/100/instagram-new--v1.png" alt="Instagram" className="w-12 h-12" />
             </a>
             <a href="#" className="hover:opacity-70 transition-opacity duration-300" aria-label="YouTube">
