@@ -1,54 +1,449 @@
-/* Nunito Sans Google Fonts CDN */
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-/* Tailwind custom font utility */
-.font-nunito {
-  font-family: 'Nunito Sans', sans-serif;
-}
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ------------------------------------------------------------------
+   Amaechi 2027 Design System
+   "Editorial Civic": newsprint canvas, structural rules instead of
+   shadows, square corners, and display type set large and tight.
 
-* {
-    scroll-behavior: smooth;
-}
+   Colour is OKLCH so every ramp is perceptually even and every tint
+   holds its hue as lightness changes.
+   Anchors: brand-600 = #008751 (Nigeria green) | ember-500 = #FF6B35
+------------------------------------------------------------------- */
 
-@layer base {
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ---- Brand: green ------------------------------------------- */
+  --color-brand-50: oklch(97.2% 0.02 157);
+  --color-brand-100: oklch(94.5% 0.042 157);
+  --color-brand-200: oklch(89% 0.072 157);
+  --color-brand-300: oklch(81.5% 0.1 157);
+  --color-brand-400: oklch(70% 0.124 157);
+  --color-brand-500: oklch(62% 0.132 157);
+  --color-brand-600: oklch(54.9% 0.131 157); /* #008751 */
+  --color-brand-700: oklch(46.5% 0.112 157);
+  --color-brand-800: oklch(38% 0.092 157);
+  --color-brand-900: oklch(30% 0.072 157);
+  --color-brand-950: oklch(20% 0.048 157);
+
+  /* ---- Accent: ember ------------------------------------------ */
+  --color-ember-50: oklch(97.5% 0.015 39);
+  --color-ember-100: oklch(94.5% 0.034 39);
+  --color-ember-200: oklch(89% 0.07 39);
+  --color-ember-300: oklch(81% 0.12 39);
+  --color-ember-400: oklch(76% 0.16 39);
+  --color-ember-500: oklch(70.5% 0.193 39); /* #FF6B35 */
+  --color-ember-600: oklch(62% 0.188 39);
+  --color-ember-700: oklch(52% 0.165 39);
+  --color-ember-800: oklch(42% 0.135 39);
+  --color-ember-900: oklch(33% 0.105 39);
+  --color-ember-950: oklch(22% 0.07 39);
+
+  /* ---- MAP red -------------------------------------------------
+     Sampled from the logo: the "AP" letterforms are pure #FF0000,
+     which is exactly oklch(62.8% 0.258 29.2), so the whole ramp is
+     anchored on the mark's own hue rather than a guessed red.
+
+     Note that 500 (the literal logo red) is a poor *surface*: it
+     carries only 4.0:1 against white and 4.2:1 against ink-950, both
+     under the 4.5:1 body-text target. Use it for marks, rules and
+     large display type; use 600 (5.4:1 on white) where text sits on
+     top of it. ------------------------------------------------- */
+  --color-red-50: oklch(97% 0.014 29.2);
+  --color-red-100: oklch(94% 0.034 29.2);
+  --color-red-200: oklch(88% 0.075 29.2);
+  --color-red-300: oklch(79% 0.135 29.2);
+  --color-red-400: oklch(70.5% 0.2 29.2);
+  --color-red-500: oklch(62.8% 0.258 29.2); /* #FF0000, the logo red */
+  --color-red-600: oklch(55% 0.222 29.2); /* #D50B06, 5.4:1 on white */
+  --color-red-700: oklch(46% 0.175 29.2);
+  --color-red-800: oklch(38% 0.14 29.2);
+  --color-red-900: oklch(31% 0.11 29.2);
+  --color-red-950: oklch(21% 0.075 29.2);
+
+  /* ---- Ceremonial gold (seals, honours, rules) ----------------- */
+  --color-gold-300: oklch(88% 0.09 80);
+  --color-gold-400: oklch(82% 0.115 80);
+  --color-gold-500: oklch(75.1% 0.13 80);
+  --color-gold-600: oklch(66% 0.12 80);
+  --color-gold-700: oklch(55% 0.1 80);
+
+  /* ---- Ink: warm neutrals, never a cold grey ------------------- */
+  --color-ink-50: oklch(97.6% 0.004 85);
+  --color-ink-100: oklch(95% 0.006 85);
+  --color-ink-200: oklch(90.5% 0.008 85);
+  --color-ink-300: oklch(83% 0.01 85);
+  --color-ink-400: oklch(68% 0.012 85);
+  --color-ink-500: oklch(55% 0.012 85);
+  --color-ink-600: oklch(44% 0.011 85);
+  --color-ink-700: oklch(34% 0.01 85);
+  --color-ink-800: oklch(25% 0.009 85);
+  --color-ink-900: oklch(17% 0.007 85);
+  --color-ink-950: oklch(11% 0.005 85);
+
+  /* Newsprint: the page tone. A warm paper cast rather than #fff,
+     so photography and flat colour both sit on it comfortably. */
+  --color-paper: oklch(96.4% 0.008 85);
+
+  /* ---- Typography ---------------------------------------------
+     One family, Montserrat. Hierarchy comes from weight, scale and
+     letterspacing rather than from mixing faces, which is what keeps
+     masthead, sections and footer reading as one voice. */
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+
+  /* Editorial scale: small text stays calm, display type goes big.
+     Clamped so it tracks the viewport instead of stepping through
+     text-3xl sm:text-4xl md:text-6xl lg:text-8xl ladders. */
+  --text-fluid-xs: clamp(0.6875rem, 0.66rem + 0.14vw, 0.75rem);
+  --text-fluid-sm: clamp(0.8125rem, 0.79rem + 0.14vw, 0.875rem);
+  --text-fluid-base: clamp(0.9375rem, 0.91rem + 0.16vw, 1rem);
+  --text-fluid-lg: clamp(1.0625rem, 1rem + 0.32vw, 1.25rem);
+  --text-fluid-xl: clamp(1.25rem, 1.13rem + 0.6vw, 1.625rem);
+  --text-fluid-2xl: clamp(1.5rem, 1.28rem + 1.1vw, 2.25rem);
+  --text-fluid-3xl: clamp(1.875rem, 1.5rem + 1.9vw, 3.125rem);
+  --text-fluid-4xl: clamp(2.375rem, 1.75rem + 3.1vw, 4.5rem);
+  --text-fluid-5xl: clamp(2.875rem, 1.9rem + 4.9vw, 6.5rem);
+  --text-fluid-6xl: clamp(3.25rem, 1.9rem + 6.8vw, 8.5rem);
+  --text-fluid-7xl: clamp(3.5rem, 1.6rem + 9.5vw, 11rem);
+
+  /* ---- Shape ---------------------------------------------------
+     Square. Ford Foundation and Labour both build with hard edges;
+     rounded cards are what made the previous pass read as a template. */
+  --radius-card: 0px;
+  --radius-panel: 0px;
+
+  /* ---- Elevation ----------------------------------------------
+     Deliberately minimal. Structure comes from rules and flat colour
+     blocks; these exist only for genuinely floating UI (drawer, toast). */
+  --shadow-e1: none;
+  --shadow-e2: 0 1px 2px oklch(11% 0.005 85 / 0.06);
+  --shadow-e3: 0 8px 24px -12px oklch(11% 0.005 85 / 0.18);
+  --shadow-e4: 0 24px 64px -24px oklch(11% 0.005 85 / 0.3);
+
+  /* ---- Motion -------------------------------------------------- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --animate-rise: rise 0.7s var(--ease-out-quart) both;
+  --animate-marquee: marquee 42s linear infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 1.25rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
-
-::-webkit-scrollbar {
-  display: none;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  @keyframes marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
   }
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(20px);
+/* Semantic layer: these flip in dark mode, the ramps above never do. */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-hairline: var(--hairline);
+  --color-rule: var(--rule-color);
+  --color-content: var(--content);
+  --color-content-muted: var(--content-muted);
+  --color-content-subtle: var(--content-subtle);
+}
+
+/* Four colours do all the work: white, black, Nigeria green, ember orange.
+   No greys beyond the neutral ramp needed for type and rules. */
+:root {
+  --canvas: #ffffff;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --hairline: var(--color-ink-200);
+  /* The structural rule: black, like a printed rule. */
+  --rule-color: var(--color-ink-950);
+  --content: var(--color-ink-950);
+  --content-muted: var(--color-ink-600);
+  --content-subtle: var(--color-ink-500);
+}
+
+.dark {
+  --canvas: var(--color-ink-950);
+  --surface: oklch(15% 0.006 85);
+  --surface-raised: oklch(19% 0.007 85);
+  --hairline: oklch(28% 0.008 85);
+  --rule-color: oklch(88% 0.006 85);
+  --content: var(--color-ink-50);
+  --content-muted: var(--color-ink-300);
+  --content-subtle: var(--color-ink-400);
+}
+
+/* ------------------------------------------------------------------
+   Base
+------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Keeps anchor targets clear of the sticky masthead */
+    scroll-padding-top: 6rem;
+    -webkit-tap-highlight-color: transparent;
   }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+
+  body {
+    background-color: var(--canvas);
+    color: var(--content);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    /* Never let a full-bleed section create a horizontal scrollbar */
+    overflow-x: clip;
+  }
+
+  /* Montserrat is drawn wide and loose by default, which reads as timid
+     at headline size. Tightening tracking and pulling leading in is what
+     gives the geometric forms their intended density. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+    text-wrap: balance;
+  }
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus ring for the whole product. */
+  :focus-visible {
+    outline: 3px solid var(--color-ember-500);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-600);
+    color: white;
+  }
+
+  /* A styled scrollbar beats `display: none`, which removed the only
+     affordance telling users the page had more content. */
+  @supports (scrollbar-color: auto) {
+    html {
+      scrollbar-color: var(--color-ink-400) transparent;
+      scrollbar-width: thin;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-400);
+    border: 3px solid var(--canvas);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  /* Grid and flex children default to `min-width: auto`, meaning they refuse
+     to shrink below their content's intrinsic width. One long unbreakable
+     string or a default-sized <input> then widens the whole track, and the
+     page grows a horizontal scrollbar on mobile, which is exactly what was
+     happening on /connect, /support and /planforchange.
+
+     `:where()` keeps this at zero specificity, so any explicit `min-w-*`
+     utility still wins, and `shrink-0` items are unaffected because
+     flex-shrink: 0 takes precedence over a zero min-width. */
+  :where(.grid, .flex) > * {
+    min-width: 0;
   }
 }
 
-@layer utilities {
-  .animate-stat-card {
-    animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+/* ------------------------------------------------------------------
+   Components: the vocabulary every page reuses
+------------------------------------------------------------------- */
+@layer components {
+  /* Page gutter + measure. Replaces the six different
+     `max-w-7xl px-4 sm:px-6 lg:px-12` variants in the codebase. */
+  .shell {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 88rem;
+    padding-inline: clamp(1.25rem, 0.4rem + 4vw, 5rem);
+  }
+  .shell-wide {
+    max-width: 110rem;
+  }
+  .shell-text {
+    max-width: 52rem;
+  }
+
+  /* Vertical rhythm */
+  .section {
+    padding-block: clamp(4.5rem, 2.5rem + 9vw, 11rem);
+  }
+  .section-tight {
+    padding-block: clamp(3rem, 2rem + 5vw, 6rem);
+  }
+
+  /* Editorial section label: a numbered, ruled kicker. */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-size: var(--text-fluid-xs);
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--content);
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.18;
+  }
+  .eyebrow-center {
+    justify-content: center;
+  }
+  .eyebrow-center::after {
+    display: none;
+  }
+  .eyebrow-inverse {
+    color: #fff;
+  }
+
+  /* Body copy */
+  .prose-body {
+    font-size: var(--text-fluid-lg);
+    font-weight: 400;
+    line-height: 1.65;
+    letter-spacing: -0.006em;
+    max-width: 64ch;
+    color: var(--content-muted);
+  }
+
+  /* A "card" here is a ruled block, not a floating rounded panel. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    transition:
+      background-color 0.45s var(--ease-out-quart),
+      border-color 0.45s var(--ease-out-quart),
+      color 0.45s var(--ease-out-quart);
+  }
+  .card-interactive:hover {
+    border-color: var(--rule-color);
+  }
+
+  /* The heavy structural rule that separates editorial blocks. */
+  .rule {
+    height: 2px;
+    background: var(--rule-color);
+    opacity: 0.9;
+  }
+  .rule-hair {
+    height: 1px;
+    background: var(--hairline);
+  }
+
+  /* Skip link: first tab stop on every page */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 200;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-ink-950);
+    color: white;
+    font-weight: 700;
+    transform: translateY(-160%);
+    transition: transform 0.25s var(--ease-out-quart);
+  }
+  .skip-link:focus-visible {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Utilities
+------------------------------------------------------------------- */
+
+/* Breaks an element out of `.shell` to the full viewport width. */
+@utility bleed {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+/* Fades a marquee out at both edges instead of hard-cutting it */
+@utility edge-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 4%,
+    black 96%,
+    transparent
+  );
+}
+
+/* Hides a scroll container's own bar without touching the page's. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Accessibility: honour the OS motion setting everywhere.
+------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

@@ -30,8 +30,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-# .env*
+# env files. Everything except the documented template — .env arrived with the
+# scaffold this project was generated from and holds live third-party keys, and
+# .env.local holds the database URL and the session secret.
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +43,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.data/
+
+# ~96MB download cache for scripts/build-geography.mjs — the 37 raw state files
+# from the INEC scrape. The built tables in public/geo/ are committed; this is
+# not. Delete it to force a re-download, or run the script with --refresh.
+scripts/.inec-source/
+scripts/.inec-source.json
+
+# Prisma client is generated from prisma/schema.prisma by `npm run db:generate`
+lib/generated/

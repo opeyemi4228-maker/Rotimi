@@ -1,187 +1,174 @@
-'use client'
-import React, { useState } from "react";
+"use client";
+
+import React from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { assets } from "@/assets/assets";
-import Image from "next/image";
+import Button from "@/components/ui/Button";
+import Counter from "@/components/ui/Counter";
+import Reveal from "@/components/ui/Reveal";
+import BrandIcon from "@/components/ui/BrandIcon";
+import { socials } from "@/lib/site";
 
-const HeroSection = () => {
-  const [email, setEmail] = useState("");
-  const [zip, setZip] = useState("");
+/* The movement's own scale, not the aspirant's record. This is MAP's front
+   door, and his record has a page of its own. Four figures is the most a reader
+   absorbs above the fold. */
+const proof = [
+  { value: 37, suffix: "", label: "States and the FCT" },
+  { value: 774, suffix: "", label: "Local Government Areas" },
+  { value: 8809, suffix: "", label: "Wards nationwide" },
+  { value: 92190, suffix: "", label: "Seats in the structure" },
+];
 
-  const slide = {
-    image: assets.Amaechi10,
-    backgroundText: "AMAECHI",
-    subtitle: "PROVEN LEADERSHIP",
-    tagline: "Not Promises. Results.",
-    stats: [
-      { number: "1,763+", label: "KM RAIL" },
-      { number: "11,300+", label: "JOBS" },
-      { number: "16", label: "YEARS LEADING" }
-    ]
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", { email, zip });
-    setEmail("");
-    setZip("");
-  };
-
+export default function Hero() {
   return (
-    <section id="hero" className="relative h-[600px] sm:h-[650px] md:h-[700px] lg:h-[750px] xl:h-[800px] overflow-hidden mt-[50px] lg:mt-0">
-      <div className="relative w-full h-full">
-        {/* Portrait Slide with Name Background */}
-        <>
-          {/* White/Clean Background with Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-80 via-white to-gray-100"></div>
-          
-          {/* Large Background Text - AMAECHI - Super Responsive */}
-          <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-            <h2 className="text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] xl:text-[22rem] 2xl:text-[28rem] font-black text-gray-200/30 sm:text-gray-200/35 md:text-gray-200/40 tracking-tighter leading-none select-none whitespace-nowrap">
-              {slide.backgroundText}
-            </h2>
+    <section className="relative border-b-2 border-ink-950 bg-white">
+      <div className="shell shell-wide">
+        <div className="grid lg:grid-cols-[1fr_0.82fr]">
+          {/* ------------------------------------------------------ copy */}
+          <div className="flex flex-col justify-center py-10 lg:py-12 lg:pr-14">
+            <Reveal>
+              <p className="eyebrow">
+                <span className="text-ember-600">01</span>
+                Movement for Amaechi Presidency
+              </p>
+            </Reveal>
+
+            {/* One h1 per page. The masthead already carries the name, so the
+                hero leads with the argument rather than repeating it three
+                times in three different colours. */}
+            <Reveal delay={70}>
+              <h1 className="mt-5 text-fluid-5xl text-ink-950">
+                Every ward
+                <br />
+                <span className="text-brand-600">matters.</span>
+              </h1>
+            </Reveal>
+
+            <Reveal delay={140}>
+              <p className="prose-body mt-5">
+                MAP is organising in all 36 states, the Federal Capital
+                Territory, 774 Local Government Areas and over 8,000 wards,
+                behind the presidential aspiration of Rt. Hon. Chibuike Rotimi
+                Amaechi. Registration takes under two minutes.
+              </p>
+            </Reveal>
+
+            <Reveal delay={210}>
+              <div className="mt-7 flex flex-col gap-0 sm:flex-row">
+                <Button href="/join" variant="dark" size="lg">
+                  Join MAP
+                  <ArrowRight
+                    size={17}
+                    strokeWidth={3}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                </Button>
+                <Button
+                  href="/structure"
+                  variant="outline"
+                  size="lg"
+                  className="sm:-ml-0.5"
+                >
+                  Our Structure
+                </Button>
+              </div>
+            </Reveal>
+
+            {/* Record strip: one ruled row of figures, not four floating
+                cards of three different widths. */}
+            <Reveal delay={280}>
+              {/* min-content tracks, not plain 1fr: Tailwind's grid-cols-N is
+                  minmax(0,1fr), which lets a long figure ("11,300+") overrun
+                  its track and paint over the next hairline. The floor keeps
+                  every figure on one line and only ever wraps the labels.
+
+                  Hairlines sit between figures. Each breakpoint owns its own
+                  row-start rule (max-sm/sm never both match), so the reset does not
+                  depend on order and no border or indent hangs off the left
+                  edge of a row. */}
+              <dl
+                className={[
+                  "mt-10 grid border-t-2 border-ink-950",
+                  "grid-cols-[repeat(2,minmax(min-content,1fr))]",
+                  "sm:grid-cols-[repeat(4,minmax(min-content,1fr))]",
+                  "[&>div]:border-l [&>div]:border-ink-200 [&>div]:pl-5",
+                  "max-sm:[&>div:nth-child(2n+1)]:border-l-0 max-sm:[&>div:nth-child(2n+1)]:pl-0",
+                  "sm:[&>div:nth-child(4n+1)]:border-l-0 sm:[&>div:nth-child(4n+1)]:pl-0",
+                ].join(" ")}
+              >
+                {proof.map((item) => (
+                  <div key={item.label} className="flex flex-col py-5 pr-5">
+                    <dt className="sr-only">{item.label}</dt>
+                    {/* Labels are bottom-aligned so a figure whose label wraps
+                        to two lines still shares a baseline with the rest. */}
+                    <dd className="flex flex-1 flex-col">
+                      <Counter
+                        value={item.value}
+                        suffix={item.suffix}
+                        className="block font-display text-fluid-2xl font-extrabold tracking-[-0.04em] text-ink-950 tabular-nums"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="mt-auto block pt-2 text-[0.6875rem] leading-tight font-bold tracking-[0.08em] text-ink-500 uppercase"
+                      >
+                        {item.label}
+                      </span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Reveal>
           </div>
 
-          {/* Content Container */}
-          <div className="relative h-full flex mt-[24] items-center pt-[30px] sm:pt-[30px] md:pt-[20px] lg:pt-20 pb-16 sm:pb-20 md:pb-24">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
-              <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center">
-                
-                {/* Left Side - Text Content */}
-                <div className="order-2 lg:order-1 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 lg:text-left text-center">
-                  {/* Subtitle Badge */}
-                  <div className="inline-block lg:block mx-auto lg:mx-0">
-                    <span className="bg-[#008751] text-white px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-md font-black text-xs sm:text-sm tracking-widest shadow-lg">
-                      {slide.subtitle}
-                    </span>
-                  </div>
+          {/* -------------------------------------------------- portrait */}
+          <div className="relative lg:-mr-[max(1.25rem,calc((100vw-110rem)/2+5rem))]">
+            {/* Runs to the right edge of the viewport. The image is
+                the block, with no frame, radius or drop shadow around it.
+                Capped so the hero never eats a whole tall screen. */}
+            <div className="relative h-[42vh] max-h-[34rem] min-h-[18rem] w-full lg:h-full lg:max-h-none lg:min-h-[30rem]">
+              <Image
+                src={assets.Amaechi10}
+                alt="Rt. Hon. Chibuike Rotimi Amaechi"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 46vw"
+                className="object-cover object-top"
+              />
 
-                  {/* Name - Super Responsive Typography */}
-                  <div>
-                    <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl xl:text-8xl 2xl:text-9xl font-black text-gray-900 leading-none mb-2 sm:mb-3 md:mb-4">
-                      RT. HON.
-                    </h1>
-                    <h2 className="text-4xl sm:text-7xl md:text-7xl lg:text-7xl xl:text-8xl 2xl:text-8xl font-black leading-none mb-1 sm:mb-1.5 md:mb-2">
-                      <span className="text-[#008751]">CHIBUIKE</span>
-                    </h2>
-                    <h2 className="text-4xl sm:text-7xl md:text-7xl lg:text-5xl xl:text-8xl 2xl:text-7xl font-black leading-none mb-3 sm:mb-4 md:mb-5 lg:mb-6">
-                      <span className="text-[#FF6B35]">AMAECHI</span>
-                    </h2>
-                    <p className="text-xl sm:text-lg md:text-4xl lg:text-4xl xl:text-5xl font-light text-gray-600 italic">
-                      {slide.tagline}
-                    </p>
-                  </div>
+              {/* Name plate, set into the corner of the image. */}
+              <div className="absolute bottom-0 left-0 bg-ink-950 px-6 py-5 text-white sm:px-8">
+                <p className="text-[0.625rem] font-bold tracking-[0.24em] text-white/60 uppercase">
+                  Rt. Hon.
+                </p>
+                <p className="mt-1.5 font-display text-xl font-extrabold tracking-[-0.03em] sm:text-2xl">
+                  Chibuike Rotimi Amaechi
+                </p>
+                <p className="mt-1 text-[0.6875rem] font-bold tracking-[0.2em] text-ember-400 uppercase">
+                  CON · KSJ
+                </p>
+              </div>
 
-                  {/* Stats - Responsive Grid */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 md:items-center md:gap-5 pt-4 sm:pt-5 md:pt-7 justify-items-center lg:justify-items-start">
-                    {slide.stats.map((stat, idx) => (
-                      <div key={idx} className="text-center bg-white/50 rounded-lg p-2 sm:p-3 md:p-5 shadow-sm">
-                        <div className="text-xl sm:text-2xl md:text-4xl lg:text-4xl xl:text-5xl font-black text-[#008751] mb-0.5 sm:mb-1">
-                          {stat.number}
-                        </div>
-                        <div className="text-[0.6rem] sm:text-xs md:text-sm font-bold text-gray-600 tracking-wide leading-tight">
-                          {stat.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Buttons - Super Responsive */}
-                  <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 md:gap-4 pt-2 sm:pt-3 md:pt-5 justify-center lg:justify-start">
-                    <a
-                      href="/plan-for-change"
-                      className="bg-[#008751] text-white px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 rounded-md font-bold text-xs sm:text-sm md:text-base tracking-wider hover:bg-[#006b40] transition-all duration-300 inline-flex items-center justify-center gap-2 sm:gap-2.5 md:gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-                    >
-                      <span>VIEW THE PLAN</span>
-                      <ArrowRight size={16} className="sm:w-5 sm:h-5 md:w-5 md:h-5" strokeWidth={2.5} />
-                    </a>
-                    <a
-                      href="/the-journey"
-                      className="bg-white text-[#008751] border-2 border-[#008751] px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 rounded-md font-bold text-xs sm:text-sm md:text-base tracking-wider hover:bg-[#008751] hover:text-white transition-all duration-300 inline-flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
-                    >
-                      HIS JOURNEY
-                    </a>
-                  </div>
-                </div>
-
-                {/* Right Side - Portrait Image - Super Responsive */}
-                <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-                  <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[450px] lg:max-w-md xl:max-w-lg">
-                    {/* Decorative Elements - Responsive Sizes */}
-                    <div className="absolute -top-4 -left-4 sm:-top-5 sm:-left-5 md:-top-6 md:-left-6 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#008751] rounded-full blur-2xl sm:blur-3xl opacity-20"></div>
-                    <div className="absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 md:-bottom-6 md:-right-6 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#FF6B35] rounded-full blur-2xl sm:blur-3xl opacity-20"></div>
-                    
-                    {/* Image Container with Shadow */}
-                    <div className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl transform hover:scale-105 transition-transform duration-500">
-                      {/* ADC Color Strip at Top - Responsive Height */}
-                      <div className="absolute top-0 left-0 right-0 h-2 sm:h-2.5 md:h-3 bg-gradient-to-r from-[#008751] to-[#FF6B35]"></div>
-                      
-                      {/* Portrait Image */}
-                      <div className="relative w-full aspect-[3/4]">
-                        <Image
-                          src={slide.image}
-                          alt="Rt. Hon. Chibuike Rotimi Amaechi"
-                          fill
-                          priority
-                          className="object-cover object-center"
-                          sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 400px, (max-width: 1280px) 448px, 512px"
-                        />
-                      </div>
-                      
-                      {/* Badge at Bottom - Responsive Padding */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 md:p-5 lg:p-6">
-                        <p className="text-white font-bold text-sm sm:text-base md:text-lg text-center">
-                          CON • KSJ
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+              {/* Socials, docked to the image edge rather than floating loose
+                  over the page as absolutely-positioned icons8 PNGs. */}
+              <div className="absolute top-0 right-0 flex">
+                {socials.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="grid size-11 place-items-center bg-ink-950 text-white transition-colors duration-300 hover:bg-ember-500 hover:text-ink-950 sm:size-12"
+                  >
+                    <BrandIcon name={social.icon} className="size-4" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
-        </>
+        </div>
       </div>
-      <div className="hidden md:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 flex-col gap-4 lg:gap-6 z-20">
-        <a 
-          href="#" 
-          className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white hover:bg-[#008751] flex items-center justify-center p-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110"
-          aria-label="Twitter"
-        >
-          <img 
-            src="https://img.icons8.com/ios-filled/100/twitterx--v1.png" 
-            alt="Twitter"
-            className="w-full h-full object-contain"
-          />
-        </a>
-        <a 
-          href="#" 
-          className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white hover:bg-[#008751] flex items-center justify-center p-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110"
-          aria-label="TikTok"
-        >
-          <img 
-            src="https://img.icons8.com/ios-filled/100/tiktok--v1.png" 
-            alt="TikTok"
-            className="w-full h-full object-contain"
-          />
-        </a>
-        <a 
-          href="#" 
-          className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white hover:bg-[#008751] flex items-center justify-center p-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110"
-          aria-label="YouTube"
-        >
-          <img 
-            src="https://img.icons8.com/ios-filled/100/youtube-play.png" 
-            alt="YouTube"
-            className="w-full h-full object-contain"
-          />
-        </a>
-      </div>
-
-
     </section>
   );
-};
-
-export default HeroSection;
+}

@@ -1,327 +1,311 @@
-'use client'
-import React, { useState } from "react";
-import { ArrowRight, Award, Users, Target, Zap, Heart, Globe } from "lucide-react";
+import React from "react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  Scale,
+  Hammer,
+  ShieldCheck,
+  GraduationCap,
+  Landmark,
+  Compass,
+} from "lucide-react";
+import { assets } from "@/assets/assets";
+import Button from "@/components/ui/Button";
+import Reveal from "@/components/ui/Reveal";
+import PageHeader from "@/components/ui/PageHeader";
+import { Section, SectionHeading } from "@/components/ui/Section";
 
-const AboutUs = () => {
-  const [activeTab, setActiveTab] = useState("mission");
-
-  // Updated Stats for Amaechi
-  const stats = [
-    { number: "5M+", label: "Lives Touched", icon: Heart },
-    { number: "30+", label: "States Covered", icon: Globe },
-    { number: "100+", label: "Community Projects", icon: Users },
-    { number: "15 Years", label: "Of Service", icon: Award }
-  ];
-
-  // Updated Values for Amaechi
-  const values = [
-    {
-      icon: Target,
-      title: "Community-Focused",
-      description: "We prioritize the needs of the communities we serve, ensuring meaningful impact."
-    },
-    {
-      icon: Zap,
-      title: "Innovative Solutions",
-      description: "We implement creative approaches to address challenges and improve lives."
-    },
-    {
-      icon: Users,
-      title: "Partnership-Driven",
-      description: "Collaboration with stakeholders is key to achieving sustainable outcomes."
-    },
-    {
-      icon: Heart,
-      title: "Compassionate Service",
-      description: "Empathy and care guide all our programs and initiatives."
-    }
-  ];
-
-  // Updated Team for Amaechi
-  const team = [
-    {
-      name: "Amaechi Okechukwu",
-      role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
-      bio: "Leading with 15+ years of experience in community development and social impact"
-    },
-    {
-      name: "Chinwe Okafor",
-      role: "Program Director",
-      image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80",
-      bio: "Overseeing initiatives across multiple states to maximize community impact"
-    },
-    {
-      name: "Emeka Udo",
-      role: "Head of Innovation",
-      image: "https://images.unsplash.com/photo-1531891437562-0f2a0d7f93ef?w=400&q=80",
-      bio: "Driving innovative solutions for education, health, and social development"
-    },
-    {
-      name: "Adaeze Nwosu",
-      role: "Operations Manager",
-      image: "https://images.unsplash.com/photo-1502767089025-6572583495b1?w=400&q=80",
-      bio: "Ensuring smooth operations and effective delivery of all programs"
-    }
-  ];
-
-  // Updated Timeline for Amaechi
-  const timeline = [
-    { year: "2008", title: "Foundation Established", description: "Amaechi Foundation began with a mission to serve communities in need." },
-    { year: "2012", title: "State Outreach Launch", description: "Expanded programs to cover 10 states across Nigeria." },
-    { year: "2015", title: "Health & Education Programs", description: "Introduced large-scale initiatives for healthcare and education." },
-    { year: "2018", title: "1M Lives Impacted", description: "Celebrated reaching over 1 million people through our programs." },
-    { year: "2021", title: "Digital Transformation", description: "Adopted digital tools to enhance program reach and efficiency." },
-    { year: "2025", title: "5M Lives Impacted", description: "Marked a major milestone of positively affecting over 5 million lives." }
-  ];
-
-  return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative bg-[#E31E24] text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mt-[-86] mx-auto px-6 md:px-16 lg:px-24 py-24 md:py-32 lg:py-40">
-          <div className="max-w-4xl">
-            <p className="text-white/90 font-bold tracking-widest mb-6 text-sm md:text-base">WHO WE ARE</p>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none mb-8">
-              BUILDING STRONGER COMMUNITIES
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-12 max-w-3xl">
-              Amaechi Foundation is dedicated to transforming lives through community-centered programs, 
-              innovative solutions, and unwavering service to humanity.
-            </p>
-            <a 
-              href="#mission" 
-              className="inline-flex items-center gap-3 bg-white text-[#E31E24] px-10 py-5 hover:bg-white/95 transition-all duration-300 font-bold text-lg tracking-wide group shadow-lg hover:shadow-xl rounded-full"
-            >
-              Discover Our Mission
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform duration-300" strokeWidth={3} />
-            </a>
-          </div>
-        </div>
-
-        {/* Animated Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="w-full h-20 md:h-32" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
-          </svg>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div 
-                  key={index} 
-                  className="text-center group hover:transform hover:scale-105 transition-all duration-300"
-                >
-                  <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-[#E31E24] rounded-full mb-4 group-hover:rotate-12 transition-transform duration-300">
-                    <Icon size={32} className="text-white" strokeWidth={2} />
-                  </div>
-                  <div className="text-4xl md:text-6xl font-black text-[#E31E24] mb-2">{stat.number}</div>
-                  <div className="text-base md:text-lg font-semibold text-gray-700">{stat.label}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission, Vision, Values Section */}
-      <section id="mission" className="py-16 md:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">What Drives Us</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our mission, vision, and values guide everything we do at Amaechi Foundation
-            </p>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <button
-              onClick={() => setActiveTab("mission")}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-all duration-300 ${
-                activeTab === "mission"
-                  ? "bg-[#E31E24] text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              OUR MISSION
-            </button>
-            <button
-              onClick={() => setActiveTab("vision")}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-all duration-300 ${
-                activeTab === "vision"
-                  ? "bg-[#E31E24] text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              OUR VISION
-            </button>
-            <button
-              onClick={() => setActiveTab("values")}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-all duration-300 ${
-                activeTab === "values"
-                  ? "bg-[#E31E24] text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              OUR VALUES
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="bg-white p-8 md:p-12 lg:p-16 rounded-2xl shadow-lg">
-            {activeTab === "mission" && (
-              <div className="max-w-4xl mx-auto">
-                <h3 className="text-3xl md:text-4xl font-bold mb-6 text-[#E31E24]">Our Mission</h3>
-                <p className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-6">
-                  To uplift communities across Nigeria through sustainable programs, empowerment initiatives, and compassionate service.
-                </p>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  We focus on education, health, and social development, working hand-in-hand with local partners to create measurable and lasting impact.
-                </p>
-              </div>
-            )}
-
-            {activeTab === "vision" && (
-              <div className="max-w-4xl mx-auto">
-                <h3 className="text-3xl md:text-4xl font-bold mb-6 text-[#E31E24]">Our Vision</h3>
-                <p className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-6">
-                  A Nigeria where every community has access to opportunities, resources, and empowerment.
-                </p>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  We envision thriving communities with equitable access to education, healthcare, and social services, fostering long-term growth and prosperity.
-                </p>
-              </div>
-            )}
-
-            {activeTab === "values" && (
-              <div className="grid md:grid-cols-2 gap-8">
-                {values.map((value, index) => {
-                  const Icon = value.icon;
-                  return (
-                    <div key={index} className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-14 h-14 bg-[#E31E24] rounded-lg flex items-center justify-center">
-                          <Icon size={28} className="text-white" strokeWidth={2} />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold mb-2 text-gray-900">{value.title}</h4>
-                        <p className="text-gray-600 leading-relaxed">{value.description}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline Section */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">Our Journey</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Years of dedication, growth, and transforming lives across Nigeria
-            </p>
-          </div>
-
-          <div className="relative">
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-[#E31E24] transform md:-translate-x-1/2"></div>
-            <div className="space-y-12">
-              {timeline.map((item, index) => (
-                <div 
-                  key={index} 
-                  className={`relative flex items-center ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
-                >
-                  <div className="absolute left-8 md:left-1/2 w-16 h-16 bg-[#E31E24] rounded-full flex items-center justify-center transform md:-translate-x-1/2 z-10 shadow-lg">
-                    <span className="text-white font-black text-sm">{item.year}</span>
-                  </div>
-                  <div className={`ml-28 md:ml-0 md:w-5/12 ${index % 2 === 0 ? "md:pr-16 md:text-right" : "md:pl-16"}`}>
-                    <div className="bg-gray-50 p-6 rounded-xl hover:shadow-xl transition-all duration-300">
-                      <h3 className="text-2xl font-bold mb-2 text-[#E31E24]">{item.title}</h3>
-                      <p className="text-gray-600 leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">Meet Our Leaders</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Dedicated individuals driving Amaechi Foundation’s mission
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <div key={index} className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-2xl mb-4 aspect-square">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#E31E24] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <h3 className="text-xl font-bold mb-1 text-gray-900">{member.name}</h3>
-                <p className="text-[#E31E24] font-semibold mb-2 text-sm">{member.role}</p>
-                <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="bg-[#E31E24] text-white py-16 md:py-24">
-        <div className="max-w-5xl mx-auto px-6 md:px-16 text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">
-            JOIN US IN MAKING A DIFFERENCE
-          </h2>
-          <p className="text-xl md:text-2xl mb-12 text-white/90">
-            Partner with Amaechi Foundation to uplift communities and create lasting impact.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="#donate" 
-              className="inline-flex items-center justify-center gap-3 bg-white text-[#E31E24] px-10 py-5 hover:bg-white/95 transition-all duration-300 font-bold text-lg tracking-wide group shadow-lg hover:shadow-xl rounded-full"
-            >
-              Support Our Work
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform duration-300" strokeWidth={3} />
-            </a>
-            <a 
-              href="#volunteer" 
-              className="inline-flex items-center justify-center gap-3 bg-transparent text-white border-2 border-white px-10 py-5 hover:bg-white hover:text-[#E31E24] transition-all duration-300 font-bold text-lg tracking-wide group rounded-full"
-            >
-              Get Involved
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform duration-300" strokeWidth={3} />
-            </a>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+export const metadata = {
+  title: "Leadership",
+  description:
+    "The character behind the record: the principles, defining moments and public service of Rt. Hon. Chibuike Rotimi Amaechi.",
 };
 
-export default AboutUs;
+/* Each principle is anchored to something that actually happened. A claim
+   without evidence underneath it is just an adjective. */
+const principles = [
+  {
+    icon: Compass,
+    name: "Vision",
+    claim: "Plan for the country you intend to leave behind.",
+    body: "The rail programme was not a single line. It was a national grid, sequenced over seven years, connecting ports to hinterland and hinterland to market.",
+    evidence: "1,763+ KM of standard gauge rail delivered",
+  },
+  {
+    icon: Scale,
+    name: "Courage",
+    claim: "Take the fight to the institutions when the cause is right.",
+    body: "Substituted on the ballot after winning his party's primary in 2007, he pursued the case through every tier of court rather than accept the outcome.",
+    evidence: "Supreme Court ruled in his favour, 26 October 2007",
+  },
+  {
+    icon: Hammer,
+    name: "Execution",
+    claim: "Finish what others abandoned.",
+    body: "The Warri to Itakpe line had sat unfinished for three decades across successive administrations. It was completed and commissioned.",
+    evidence: "326KM Warri to Itakpe completed after 30 years",
+  },
+  {
+    icon: ShieldCheck,
+    name: "Integrity",
+    claim: "Public money is accounted for in public.",
+    body: "Revenue generated by the new rail services was applied to servicing the facilities that built them, rather than absorbed into general spending.",
+    evidence: "₦460M+ in rail revenue applied to loan repayment",
+  },
+  {
+    icon: GraduationCap,
+    name: "Service",
+    claim: "Build the people who will run the system.",
+    body: "Infrastructure without operators is a monument. Engineers and cadets were trained deliberately, at home and abroad, to run what was built.",
+    evidence: "150 scholarships to China; 550+ maritime cadets trained",
+  },
+  {
+    icon: Landmark,
+    name: "Building institutions",
+    claim: "Strengthen the office, not the officeholder.",
+    body: "As Speaker he defended the autonomy of the State Assembly as an institution, including against the executive he belonged to.",
+    evidence: "Chairman, Conference of Speakers of State Assemblies",
+  },
+];
+
+/* Documented moments only. No invented milestones. */
+const moments = [
+  {
+    year: "1999",
+    title: "Elected Speaker, Rivers State House of Assembly",
+    body: "Chosen to lead the chamber at his first term, and returned to the role for a second.",
+  },
+  {
+    year: "2007",
+    title: "Supreme Court affirms his mandate",
+    body: "After being substituted as his party's candidate, the Court ruled on 26 October that he was the rightful candidate, and he was sworn in as Governor of Rivers State.",
+  },
+  {
+    year: "2011",
+    title: "Returned as Governor of Rivers State",
+    body: "Returned for a second term on a record of roads, bridges, power projects and urban renewal.",
+  },
+  {
+    year: "2015",
+    title: "Director General, presidential campaign",
+    body: "Ran the national campaign that produced the first defeat of a sitting Nigerian president at the ballot box.",
+  },
+  {
+    year: "2015",
+    title: "Appointed Federal Minister of Transportation",
+    body: "Took charge of rail, ports and maritime, and began the largest railway modernisation programme in the country's history.",
+  },
+  {
+    year: "2019",
+    title: "Nominated again and confirmed",
+    body: "Returned to the transport portfolio; the Senate granted him a 'take a bow' in recognition of his record.",
+  },
+  {
+    year: "2022",
+    title: "Called to the Bar",
+    body: "Completed his legal education and was admitted, a return to study undertaken while in national office.",
+  },
+];
+
+const credentials = [
+  { label: "Honour", value: "Commander of the Order of the Niger (CON)" },
+  { label: "Chieftaincy", value: "Dan Amanar Daura, Katsina State" },
+  { label: "Education", value: "University of Port Harcourt, English & Literary Studies" },
+  { label: "Education", value: "Master of Law, King's College London" },
+  { label: "Origin", value: "Ubima, Ikwerre LGA, Rivers State" },
+  { label: "Party", value: "African Democratic Congress" },
+];
+
+export default function LeadershipPage() {
+  return (
+    <>
+      <PageHeader
+        breadcrumb="Leadership"
+        kicker="The character behind the record"
+        title="Leadership is what you do when it costs you something."
+        lead="Titles are given. Judgement, nerve and the will to see a thing through are demonstrated. What follows is the evidence, not the adjectives."
+        image={assets.Amaechi5}
+      >
+        <div className="flex flex-col sm:flex-row">
+          <Button href="/governance" variant="inverse" size="lg">
+            The full journey
+            <ArrowRight
+              size={17}
+              strokeWidth={3}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Button>
+          <Button
+            href="/planforchange"
+            variant="inverseOutline"
+            size="lg"
+            className="sm:-ml-0.5"
+          >
+            The plan
+          </Button>
+        </div>
+      </PageHeader>
+
+      {/* ------------------------------------------------------- principles */}
+      <Section wide className="bg-white">
+        <SectionHeading
+          index={1}
+          eyebrow="Principles"
+          title="Six commitments, each with something underneath it"
+          lead="Every principle below is followed by the specific, checkable thing that demonstrates it."
+        />
+
+        <div className="mt-16 grid gap-px bg-ink-200 md:grid-cols-2 lg:grid-cols-3">
+          {principles.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <Reveal
+                key={item.name}
+                delay={index * 60}
+                className="group flex flex-col bg-white p-7 transition-colors duration-500 hover:bg-ink-950 lg:p-9"
+              >
+                <div className="flex items-center justify-between">
+                  <Icon
+                    size={24}
+                    strokeWidth={1.75}
+                    className="text-brand-600 transition-colors duration-500 group-hover:text-ember-500"
+                  />
+                  <span className="font-display text-[0.625rem] font-extrabold tracking-[0.2em] text-ink-400 uppercase transition-colors duration-500 group-hover:text-white/40">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+
+                <h3 className="mt-7 text-fluid-xl text-ink-950 transition-colors duration-500 group-hover:text-white">
+                  {item.name}
+                </h3>
+                <p className="mt-3 text-[0.9375rem] leading-snug font-semibold text-brand-700 transition-colors duration-500 group-hover:text-ember-400">
+                  {item.claim}
+                </p>
+                <p className="mt-4 flex-1 text-[0.9375rem] leading-relaxed text-ink-600 transition-colors duration-500 group-hover:text-white/65">
+                  {item.body}
+                </p>
+
+                <p className="mt-6 border-t border-ink-200 pt-4 text-[0.75rem] font-bold text-ink-950 transition-colors duration-500 group-hover:border-white/20 group-hover:text-white">
+                  {item.evidence}
+                </p>
+              </Reveal>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ---------------------------------------------------------- moments */}
+      <Section wide className="bg-ink-950">
+        <SectionHeading
+          index={2}
+          eyebrow="Defining moments"
+          title="The decisions that made the record"
+          tone="inverse"
+        />
+
+        <ol className="mt-14">
+          {moments.map((moment, index) => (
+            <Reveal
+              as="li"
+              key={`${moment.year}-${moment.title}`}
+              delay={index * 50}
+              className="group grid gap-4 border-b border-white/15 py-8 transition-colors duration-500 hover:border-ember-500 lg:grid-cols-[8rem_1fr_1.1fr] lg:items-baseline lg:gap-10"
+            >
+              <span className="font-display text-fluid-2xl font-extrabold tracking-[-0.05em] text-ember-500 tabular-nums">
+                {moment.year}
+              </span>
+              <h3 className="text-fluid-lg leading-snug text-white">
+                {moment.title}
+              </h3>
+              <p className="leading-relaxed text-white/60">{moment.body}</p>
+            </Reveal>
+          ))}
+        </ol>
+      </Section>
+
+      {/* ------------------------------------------------------ credentials */}
+      <Section wide className="bg-white">
+        <div className="grid gap-14 lg:grid-cols-[1fr_0.85fr] lg:gap-20">
+          <div>
+            <SectionHeading
+              index={3}
+              eyebrow="On the record"
+              title="Background and honours"
+            />
+
+            <dl className="mt-12 border-t-2 border-ink-950">
+              {credentials.map((item) => (
+                <Reveal
+                  key={item.value}
+                  className="flex flex-col gap-1 border-b border-ink-200 py-5 sm:flex-row sm:items-baseline sm:gap-8"
+                >
+                  <dt className="w-32 shrink-0 text-[0.625rem] font-bold tracking-[0.16em] text-ink-500 uppercase">
+                    {item.label}
+                  </dt>
+                  <dd className="text-[1.0625rem] leading-snug font-semibold text-ink-950">
+                    {item.value}
+                  </dd>
+                </Reveal>
+              ))}
+            </dl>
+          </div>
+
+          <Reveal delay={120}>
+            <figure className="relative">
+              <div className="relative aspect-4/5 w-full">
+                <Image
+                  src={assets.Amaechi7}
+                  alt="Rt. Hon. Chibuike Rotimi Amaechi"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  className="object-cover object-top"
+                />
+              </div>
+              <figcaption className="bg-ink-950 p-6 text-white">
+                <p className="text-fluid-lg leading-snug font-semibold">
+                  &ldquo;Governance must be measured by what it delivers, not by
+                  what it promises.&rdquo;
+                </p>
+                <p className="mt-4 text-[0.6875rem] font-bold tracking-[0.16em] text-ember-400 uppercase">
+                  Rt. Hon. Chibuike Rotimi Amaechi
+                </p>
+              </figcaption>
+            </figure>
+          </Reveal>
+        </div>
+      </Section>
+
+      {/* -------------------------------------------------------------- CTA */}
+      <section className="border-t-2 border-ink-950 bg-brand-600">
+        <div className="shell shell-wide flex flex-col items-start justify-between gap-8 py-16 lg:flex-row lg:items-center lg:py-20">
+          <div>
+            <h2 className="text-fluid-3xl text-white">
+              A record you can check. A plan you can read.
+            </h2>
+            <p className="mt-4 max-w-xl text-white/80">
+              Decide for yourself, then decide whether to take part.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col sm:flex-row">
+            <Button href="/planforchange" variant="inverse" size="lg">
+              Read the plan
+              <ArrowRight
+                size={17}
+                strokeWidth={3}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </Button>
+            <Button
+              href="/join"
+              variant="inverseOutline"
+              size="lg"
+              className="sm:-ml-0.5"
+            >
+              Join the movement
+            </Button>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

@@ -65,12 +65,25 @@ import Amaechi14 from "./Amaechi14.jpeg";
 import Emir from "./Emir.webp";
 import Grad from "./Grad.webp";
 import Amae from "./Amae.webp";
-import Pro1 from "./Pro1.jpeg";
+import Pro1 from "./Pro1.webp";
 import Camp1 from "./Camp1.jpeg";
 import Camp2 from "./Camp2.jpeg";
 
+/* The MAP identity, cropped from the supplied "MAP NEW.png" master.
+   That file is 4400x4400 with the artwork occupying only the middle third, so
+   used directly it renders at about a third of whatever box it is given.
+
+   mapMark  is the MAP symbol alone, for the masthead and footer lockups where
+              the movement's name is already set in type beside it.
+   mapLogo  is the full lockup including "Movement for Amaechi Presidency", for
+              places with room to set it large enough to read. */
+import mapMark from "./map-mark.png";
+import mapLogo from "./map-logo.png";
+
 export const assets = {
   logo,
+  mapMark,
+  mapLogo,
   Abujakaduna,
   Pro1,
   Camp1,

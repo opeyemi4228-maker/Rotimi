@@ -1,0 +1,483 @@
+// MAP — Movement for Amaechi Presidency
+// Membership and structure database. Implements §9 of the platform plan.
+//
+// ── ONE DEPARTURE FROM THE PLAN'S DDL, DELIBERATE ──────────────────────────
+// §9.3 models a seat's scope as `scope_type VARCHAR` + `scope_id INTEGER`, a
+// polymorphic pointer into one of four tables. That cannot be a foreign key,
+// so nothing stops a seat pointing at LGA 900 when only 774 exist, and every
+// dashboard query has to hand-join on a type tag.
+//
+// Here a seat carries a `scopeType` AND four nullable foreign keys, exactly
+// one of which is set. The database now refuses an orphan scope, and
+// "every vacant seat in Edo" is a single indexed query with no discriminator
+// logic. The cost is four columns where the plan had one; at 92,000 rows that
+// is nothing, and it is the difference between the Descendant Rule being
+// enforced by Postgres and being enforced by hope.
+// ───────────────────────────────────────────────────────────────────────────
+
+// `prisma-client-js`, not the newer `prisma-client`, on purpose. This is a
+// JavaScript project (jsconfig.json, no tsconfig, no build step for lib/), and
+// the new generator emits TypeScript — its `generatedFileExtension = "js"`
+// option renames the files without transpiling them, so plain `node` chokes on
+// `export type` in prisma/seed.mjs. The legacy generator emits real JS with
+// .d.ts alongside, which gives editors the types and Node something it can run.
+//
+// The connection URL lives in prisma.config.mjs — v7 removed `url` from here.
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/* ────────────────────────────────────────────────────────────── geography */
+// Reference data, seeded once from INEC. See scripts/build-geography.mjs and
+// prisma/seed.mjs. Never written to at runtime.
+
+model Zone {
+  id     Int     @id @default(autoincrement()) @db.SmallInt
+  code   String  @unique @db.VarChar(4) // NC, NE, NW, SE, SS, SW
+  name   String  @db.VarChar(40)
+  region Region
+
+  states State[]
+  seats  Seat[]
+
+  @@map("zones")
+}
+
+model State {
+  id     Int    @id @default(autoincrement()) @db.SmallInt
+  code   String @unique @db.VarChar(6)
+  name   String @unique @db.VarChar(40)
+  slug   String @unique @db.VarChar(40) // matches public/geo/<slug>.json
+  zoneId Int    @db.SmallInt
+
+  zone    Zone     @relation(fields: [zoneId], references: [id])
+  lgas    Lga[]
+  members Member[]
+  seats   Seat[]
+
+  @@index([zoneId])
+  @@map("states")
+}
+
+model Lga {
+  id      Int    @id @default(autoincrement())
+  code    String @unique @db.VarChar(16)
+  name    String @db.VarChar(60)
+  stateId Int    @db.SmallInt
+
+  state   State    @relation(fields: [stateId], references: [id])
+  wards   Ward[]
+  members Member[]
+  seats   Seat[]
+
+  @@unique([stateId, name])
+  @@index([stateId])
+  @@map("lgas")
+}
+
+model Ward {
+  id    Int    @id @default(autoincrement())
+  code  String @unique @db.VarChar(24)
+  name  String @db.VarChar(120)
+  lgaId Int
+
+  lga          Lga           @relation(fields: [lgaId], references: [id])
+  members      Member[]
+  seats        Seat[]
+  pollingUnits PollingUnit[]
+
+  @@unique([lgaId, name])
+  @@index([lgaId])
+  @@map("wards")
+}
+
+// §7.1 makes polling unit free text. It is a real INEC table with 176,623 rows
+// and we already ship it to the browser, so it is modelled properly: a member's
+// polling unit is a foreign key, not a string somebody typed.
+model PollingUnit {
+  id   Int    @id @default(autoincrement())
+  // INEC's delimitation code, 28/06/07/003 written as OND-006-07-003. The name
+  // is NOT unique inside a ward — Osusu I in Aba North has two units called
+  // "BTC Premises XI" — so this is the only thing that identifies a unit, and
+  // it is what the join form posts.
+  code String @unique @db.VarChar(24)
+  name String @db.VarChar(160)
+
+  wardId Int
+
+  ward    Ward     @relation(fields: [wardId], references: [id])
+  members Member[]
+
+  @@index([wardId])
+  @@index([wardId, name])
+  @@map("polling_units")
+}
+
+/* ─────────────────────────────────────────────────────────────── identity */
+
+model User {
+  id            BigInt     @id @default(autoincrement())
+  phone         String     @unique @db.VarChar(15) // canonical +234XXXXXXXXXX
+  email         String?    @unique @db.VarChar(120)
+  passwordHash  String?
+  phoneVerified Boolean    @default(false)
+  status        UserStatus @default(ACTIVE)
+  // §13.2: MFA is mandatory for state level and above. Stored here so the
+  // requirement has somewhere to live before the TOTP flow is built.
+  mfaSecret     String?
+  mfaEnabled    Boolean    @default(false)
+  lastLoginAt   DateTime?  @db.Timestamptz
+  createdAt     DateTime   @default(now()) @db.Timestamptz
+
+  member  Member?
+  otps    OtpCode[]
+  @@map("users")
+}
+
+// §7.2: registration is complete only after phone OTP. Codes are hashed and
+// single-use with a five-minute expiry, per §13.2.
+model OtpCode {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt
+  codeHash  String
+  purpose   OtpPurpose @default(REGISTRATION)
+  expiresAt DateTime  @db.Timestamptz
+  consumedAt DateTime? @db.Timestamptz
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now()) @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@map("otp_codes")
+}
+
+model Member {
+  id           BigInt  @id @default(autoincrement())
+  userId       BigInt  @unique
+  membershipNo String? @unique @db.VarChar(32) // §7.3, issued on verification
+
+  /// Every member's own invitation code, issued once at registration and never
+  /// reissued — it goes on WhatsApp, on a poster, into a conversation, and a
+  /// code that changes is a code that stops working after it has been shared.
+  /// Six characters from an alphabet with no 0/O or 1/I/L in it, because it has
+  /// to survive being read down a phone line. See lib/referrals.js.
+  referralCode String? @unique @db.VarChar(12)
+
+  surname    String    @db.VarChar(60)
+  firstName  String    @db.VarChar(60)
+  middleName String?   @db.VarChar(60)
+  gender     Gender?
+  dateOfBirth DateTime? @db.Date
+  // The URL the app renders. Written by lib/photos.js when a member uploads,
+  // and pointed at /api/members/<id>/photo?v=<version>. It stays a plain
+  // string so moving the bytes to a CDN later is a change in one file.
+  photoUrl   String?
+  occupation String?   @db.VarChar(80)
+  address    String?
+
+  stateId       Int  @db.SmallInt
+  lgaId         Int
+  wardId        Int
+  pollingUnitId Int?
+
+  // §13.2: envelope-encrypted at rest, never selected into a client payload.
+  vinEncrypted String?
+  ninEncrypted String?
+
+  verification Verification @default(PENDING)
+  referredById BigInt?
+  joinedAt     DateTime     @default(now()) @db.Timestamptz
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo       MemberPhoto?
+  state       State        @relation(fields: [stateId], references: [id])
+  lga         Lga          @relation(fields: [lgaId], references: [id])
+  ward        Ward         @relation(fields: [wardId], references: [id])
+  pollingUnit PollingUnit? @relation(fields: [pollingUnitId], references: [id])
+
+  referrer  Member?  @relation("Referrals", fields: [referredById], references: [id])
+  referrals Member[] @relation("Referrals")
+
+  appointments      Appointment[]  @relation("Holder")
+  appointmentsMade  Appointment[]  @relation("Appointer")
+  applications      Application[]  @relation("Applicant")
+  decisions         Application[]  @relation("Decider")
+  applicationEvents ApplicationEvent[]
+  auditEntries      AuditLog[]
+
+  @@index([wardId])
+  @@index([lgaId])
+  @@index([stateId])
+  @@index([verification])
+  // "How many people has this member brought in", on every dashboard row.
+  @@index([referredById])
+  // The growth chart reads members-per-day across a territory.
+  @@index([joinedAt])
+  @@map("members")
+}
+
+/**
+ * A member's profile photograph, held as bytes rather than as a file path.
+ *
+ * The app has no object store and no persistent disk — Next.js rebuilds wipe
+ * anything written under public/, and a serverless instance's filesystem is
+ * gone the moment the request ends. Postgres is the only storage this project
+ * already has that survives a deploy, and an avatar is small: everything here
+ * is re-encoded to a 512px WebP before it is stored, which lands at 20–60KB.
+ *
+ * A separate table, not a column on `members`, because the bytes must never be
+ * dragged into a directory query. Nothing selects from here except the one
+ * route that serves the image.
+ */
+model MemberPhoto {
+  memberId BigInt @id
+  bytes    Bytes
+  mimeType String @db.VarChar(40)
+  width    Int    @db.SmallInt
+  height   Int    @db.SmallInt
+  byteSize Int
+  // Content hash. It is the `?v=` in the photo URL and the ETag on the
+  // response, which is what lets the image be cached for a year and still
+  // change the instant a member uploads a new one.
+  version   String   @db.VarChar(16)
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("member_photos")
+}
+
+/* ────────────────────────────────────────────────────────── roles & seats */
+
+model RoleDefinition {
+  id           Int      @id @default(autoincrement()) @db.SmallInt
+  code         String   @unique @db.VarChar(24) // ST_COORD, LG_SEC, WD_OFFICER…
+  title        String   @db.VarChar(80)
+  tier         Tier
+  // 1 = NATIONAL … 5 = WARD. The Descendant Rule compares these.
+  tierRank     Int      @db.SmallInt
+  seatsPerUnit Int      @default(1) @db.SmallInt
+  isAdmin      Boolean  @default(false)
+  // Functional national offices (§6.10): nationwide read, no appointment power.
+  isFunctional Boolean  @default(false)
+  // Role code that approves applications to this seat (§8.2).
+  approverRole String?  @db.VarChar(24)
+  sortOrder    Int      @default(0) @db.SmallInt
+
+  seats Seat[]
+
+  @@index([tier])
+  @@map("role_definitions")
+}
+
+// Every one of the ~92,000 seats exists as a row whether filled or vacant, so
+// vacancy reporting is a query and not a computation (§9.1).
+model Seat {
+  id        BigInt     @id @default(autoincrement())
+  roleId    Int        @db.SmallInt
+  scopeType ScopeType
+  seatIndex Int        @default(1) @db.SmallInt // 1..10 for ward officers
+  status    SeatStatus @default(VACANT)
+
+  // Exactly one of these is set, matching scopeType. NATION sets none.
+  zoneId  Int? @db.SmallInt
+  stateId Int? @db.SmallInt
+  lgaId   Int?
+  wardId  Int?
+
+  role  RoleDefinition @relation(fields: [roleId], references: [id])
+  zone  Zone?          @relation(fields: [zoneId], references: [id])
+  state State?         @relation(fields: [stateId], references: [id])
+  lga   Lga?           @relation(fields: [lgaId], references: [id])
+  ward  Ward?          @relation(fields: [wardId], references: [id])
+
+  appointments Appointment[]
+  applications Application[]
+
+  // One seat per role per scope per index — the uniqueness the plan's DDL had.
+  @@unique([roleId, scopeType, zoneId, stateId, lgaId, wardId, seatIndex], name: "seat_identity")
+  @@index([status])
+  @@index([scopeType, status])
+  @@index([stateId, status])
+  @@index([lgaId, status])
+  @@index([wardId, status])
+  @@map("seats")
+}
+
+// Never deleted. Ending an appointment sets endDate and status, so the full
+// history of every seat stays reconstructable (§8.4, succession).
+model Appointment {
+  id           BigInt            @id @default(autoincrement())
+  seatId       BigInt
+  memberId     BigInt
+  appointedById BigInt?
+  startDate    DateTime          @default(now()) @db.Date
+  endDate      DateTime?         @db.Date
+  endReason    EndReason?
+  endNote      String?
+  status       AppointmentStatus @default(ACTIVE)
+  createdAt    DateTime          @default(now()) @db.Timestamptz
+
+  seat        Seat    @relation(fields: [seatId], references: [id])
+  member      Member  @relation("Holder", fields: [memberId], references: [id])
+  appointedBy Member? @relation("Appointer", fields: [appointedById], references: [id])
+
+  @@index([seatId, status])
+  @@index([memberId, status])
+  // The two "only one active" rules are PARTIAL unique indexes, which Prisma
+  // cannot express. They are added by hand in the migration — see
+  // prisma/migrations/*/partial_indexes.sql. Do not drop them.
+  @@map("appointments")
+}
+
+/* ──────────────────────────────────────────────────────────── applications */
+
+model Application {
+  id           BigInt            @id @default(autoincrement())
+  memberId     BigInt
+  seatId       BigInt
+  statement    String?           @db.VarChar(500)
+  status       ApplicationStatus @default(SUBMITTED)
+  // §8.1.4: an application to a filled seat is a challenge, not an error.
+  isChallenge  Boolean           @default(false)
+  submittedAt  DateTime          @default(now()) @db.Timestamptz
+  // §8.1.6: 72-hour SLA. Stored rather than computed so the overdue query is
+  // an index scan instead of a date calculation across every open row.
+  slaDueAt     DateTime          @db.Timestamptz
+  decidedById  BigInt?
+  decidedAt    DateTime?         @db.Timestamptz
+  decisionNote String?
+
+  member    Member             @relation("Applicant", fields: [memberId], references: [id])
+  seat      Seat               @relation(fields: [seatId], references: [id])
+  decidedBy Member?            @relation("Decider", fields: [decidedById], references: [id])
+  events    ApplicationEvent[]
+
+  @@index([status, slaDueAt])
+  @@index([seatId])
+  @@index([memberId])
+  @@map("applications")
+}
+
+model ApplicationEvent {
+  id            BigInt             @id @default(autoincrement())
+  applicationId BigInt
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  actorId       BigInt?
+  note          String?
+  createdAt     DateTime           @default(now()) @db.Timestamptz
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actor       Member?     @relation(fields: [actorId], references: [id])
+
+  @@index([applicationId])
+  @@map("application_events")
+}
+
+/* ────────────────────────────────────────────────────────────────── audit */
+
+// Append-only. §13.2 requires UPDATE and DELETE to be revoked for the
+// application role at the database level; that grant is in the migration.
+model AuditLog {
+  id          BigInt     @id @default(autoincrement())
+  actorId     BigInt?
+  action      String     @db.VarChar(40)
+  entityType  String     @db.VarChar(40)
+  entityId    BigInt?
+  scopeType   ScopeType?
+  scopeId     Int?
+  beforeState Json?
+  afterState  Json?
+  ipAddress   String?    @db.Inet
+  createdAt   DateTime   @default(now()) @db.Timestamptz
+
+  actor Member? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+/* ────────────────────────────────────────────────────────────────── enums */
+
+enum Region {
+  NORTH
+  SOUTH
+}
+
+enum Tier {
+  NATIONAL
+  ZONAL
+  STATE
+  LGA
+  WARD
+}
+
+enum ScopeType {
+  NATION
+  ZONE
+  STATE
+  LGA
+  WARD
+}
+
+enum SeatStatus {
+  VACANT
+  FILLED
+  SUSPENDED
+}
+
+enum AppointmentStatus {
+  ACTIVE
+  ENDED
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  ESCALATED
+  WITHDRAWN
+}
+
+enum EndReason {
+  INACTIVITY
+  MISCONDUCT
+  ANTI_PARTY_ACTIVITY
+  RESTRUCTURING
+  RESIGNATION
+  TRANSFER
+  OTHER
+}
+
+enum Verification {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum OtpPurpose {
+  REGISTRATION
+  LOGIN
+  PASSWORD_RESET
+}
