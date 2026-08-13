@@ -14,6 +14,7 @@ import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import PageHeader from "@/components/ui/PageHeader";
 import { Section, SectionHeading } from "@/components/ui/Section";
+import JoinCta from "@/components/JoinCta";
 
 export const metadata = {
   title: "Leadership",
@@ -295,14 +296,13 @@ export default function LeadershipPage() {
                 className="transition-transform duration-300 group-hover:translate-x-1"
               />
             </Button>
-            <Button
-              href="/join"
+            <JoinCta
+              label="Join the movement"
               variant="inverseOutline"
               size="lg"
               className="sm:-ml-0.5"
-            >
-              Join the movement
-            </Button>
+              arrow={false}
+            />
           </div>
         </div>
       </section>

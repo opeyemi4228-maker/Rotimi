@@ -8,6 +8,7 @@ import Reveal from "@/components/ui/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { assets } from "@/assets/assets";
 import { bio, record, offices } from "@/lib/amaechi";
+import JoinCta from "@/components/JoinCta";
 
 export const metadata = {
   title: "Who is Amaechi",
@@ -143,9 +144,7 @@ export default function WhoIsAmaechi() {
                 Plan for Change
                 <ArrowRight size={17} strokeWidth={2.75} />
               </Button>
-              <Button href="/join" variant="inverseOutline" size="lg">
-                Join MAP
-              </Button>
+              <JoinCta variant="inverseOutline" size="lg" arrow={false} />
             </div>
           </div>
         </div>

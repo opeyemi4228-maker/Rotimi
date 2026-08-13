@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { footerColumns, socials, site } from "@/lib/site";
 import { assets } from "@/assets/assets";
 import BrandIcon from "@/components/ui/BrandIcon";
+import { useViewer } from "@/lib/useViewer";
 
 function SocialLink({ label, href, icon }) {
   return (
@@ -28,6 +29,24 @@ export default function Footer() {
   const [email, setEmail] = useState("");
   const [region, setRegion] = useState("");
   const [status, setStatus] = useState("idle");
+
+  /* A member who has already joined should not be invited to join, anywhere —
+     the footer is on every page, so leaving it alone would undo the work done
+     on all the others. The link is replaced rather than removed so the column
+     keeps its shape and still leads somewhere useful. */
+  const { member } = useViewer();
+  const columns = member
+    ? footerColumns.map((column) =>
+        column.links.some((link) => link.href === "/join")
+          ? {
+              ...column,
+              links: column.links.map((link) =>
+                link.href === "/join" ? { label: "Your membership", href: "/portal" } : link
+              ),
+            }
+          : column
+      )
+    : footerColumns;
 
   /* The old handler console.logged and fired a blocking window.alert(), which
      is unstyled, unskippable and announces poorly to assistive tech. */
@@ -166,7 +185,7 @@ export default function Footer() {
                than being squeezed into a 2-of-12 gutter. */
             className="grid gap-10 sm:grid-cols-2 lg:col-span-7 lg:col-start-6 lg:grid-cols-4 lg:gap-8"
           >
-            {footerColumns.map((column) => (
+            {columns.map((column) => (
               <div key={column.title}>
                 <h2 className="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
                   {column.title}

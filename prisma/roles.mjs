@@ -58,6 +58,17 @@ export const roles = [
   // to false in prisma/seed.mjs — it is a flag, not a rebuild.
   { code: "WD_COORD",   title: "Ward Coordinator", tier: "WARD", tierRank: 5, isAdmin: true, seatsPerUnit: 1, approverRole: "LG_COORD", sortOrder: 50 },
   { code: "WD_OFFICER", title: "Ward Officer",     tier: "WARD", tierRank: 5, seatsPerUnit: 9, approverRole: "LG_COORD", sortOrder: 51 },
+
+  /* ── Polling unit ────────────────────────────────────────────────────────
+     The sixth tier, and the one the whole structure exists to reach. Every
+     tier above it coordinates; this is the level where a vote is actually cast
+     and counted, and the only level at which the movement can witness a result
+     first-hand rather than read it second-hand.
+
+     One seat per unit, 176,623 of them — more seats than every other tier put
+     together, several times over. Appointed by the Ward Coordinator, who is
+     the only officer close enough to know who actually lives near the booth. */
+  { code: "PU_AGENT", title: "Polling Unit Coordinator", tier: "POLLING_UNIT", tierRank: 6, isAdmin: true, seatsPerUnit: 1, approverRole: "WD_COORD", sortOrder: 60 },
 ];
 
 /**

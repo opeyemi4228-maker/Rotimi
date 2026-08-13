@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CircleHelp, LogOut, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { CircleHelp, Globe, LogOut, ShieldCheck, ArrowUpRight } from "lucide-react";
 
 import { assets } from "@/assets/assets";
+import SignOutForm from "@/components/SignOutForm";
 import { AdminRail } from "./AdminNav";
 
 /**
@@ -24,7 +25,16 @@ import { AdminRail } from "./AdminNav";
  * current path. Everything the rail *says* is resolved on the server and handed
  * down, so nothing about a coordinator's authority is decided in the browser.
  */
-export default function Sidebar({ local, regional, tierLabel, unitName, roleTitle, isSuperAdmin }) {
+export default function Sidebar({
+  local,
+  regional,
+  nationwide,
+  broadcaster,
+  tierLabel,
+  unitName,
+  roleTitle,
+  isSuperAdmin,
+}) {
   return (
     <div className="flex h-full flex-col bg-white">
       <Link href="/" className="flex items-center gap-3 px-6 pt-7 pb-6">
@@ -55,10 +65,26 @@ export default function Sidebar({ local, regional, tierLabel, unitName, roleTitl
       </div>
 
       <div className="flex-1">
-        <AdminRail local={local} regional={regional} />
+        <AdminRail
+          local={local}
+          regional={regional}
+          nationwide={nationwide}
+          broadcaster={broadcaster}
+        />
       </div>
 
       <div className="mt-6 border-t border-ink-200 px-2 py-3">
+        {/* The way back out. The mark at the top of the rail links home too,
+            but a logo is not a signpost — somebody deep in the register looking
+            for the public site should not have to guess that clicking the logo
+            is how they leave. */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-2.5 text-[0.75rem] font-bold tracking-[0.06em] text-ink-500 uppercase transition-colors hover:text-ink-950"
+        >
+          <Globe size={16} strokeWidth={2.5} />
+          Go to the website
+        </Link>
         <Link
           href="/portal"
           className="flex items-center gap-3 px-4 py-2.5 text-[0.75rem] font-bold tracking-[0.06em] text-ink-500 uppercase transition-colors hover:text-ink-950"
@@ -73,7 +99,7 @@ export default function Sidebar({ local, regional, tierLabel, unitName, roleTitl
           <CircleHelp size={16} strokeWidth={2.5} />
           Help
         </Link>
-        <form action="/api/auth/logout" method="post">
+        <SignOutForm>
           <button
             type="submit"
             className="flex w-full items-center gap-3 px-4 py-2.5 text-[0.75rem] font-bold tracking-[0.06em] text-ink-500 uppercase transition-colors hover:text-red-700"
@@ -81,7 +107,7 @@ export default function Sidebar({ local, regional, tierLabel, unitName, roleTitl
             <LogOut size={16} strokeWidth={2.5} />
             Sign out
           </button>
-        </form>
+        </SignOutForm>
       </div>
     </div>
   );

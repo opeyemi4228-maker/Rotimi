@@ -32,14 +32,16 @@ datasource db {
   provider = "postgresql"
 }
 
-/* ────────────────────────────────────────────────────────────── geography */
+/**
+ * ────────────────────────────────────────────────────────────── geography
+ */
 // Reference data, seeded once from INEC. See scripts/build-geography.mjs and
 // prisma/seed.mjs. Never written to at runtime.
 
 model Zone {
-  id     Int     @id @default(autoincrement()) @db.SmallInt
-  code   String  @unique @db.VarChar(4) // NC, NE, NW, SE, SS, SW
-  name   String  @db.VarChar(40)
+  id     Int    @id @default(autoincrement()) @db.SmallInt
+  code   String @unique @db.VarChar(4) // NC, NE, NW, SE, SS, SW
+  name   String @db.VarChar(40)
   region Region
 
   states State[]
@@ -55,10 +57,12 @@ model State {
   slug   String @unique @db.VarChar(40) // matches public/geo/<slug>.json
   zoneId Int    @db.SmallInt
 
-  zone    Zone     @relation(fields: [zoneId], references: [id])
-  lgas    Lga[]
-  members Member[]
-  seats   Seat[]
+  zone           Zone                @relation(fields: [zoneId], references: [id])
+  lgas           Lga[]
+  members        Member[]
+  seats          Seat[]
+  constituencies Constituency[]
+  results        PollingUnitResult[]
 
   @@index([zoneId])
   @@map("states")
@@ -70,10 +74,12 @@ model Lga {
   name    String @db.VarChar(60)
   stateId Int    @db.SmallInt
 
-  state   State    @relation(fields: [stateId], references: [id])
-  wards   Ward[]
-  members Member[]
-  seats   Seat[]
+  state          State               @relation(fields: [stateId], references: [id])
+  wards          Ward[]
+  members        Member[]
+  seats          Seat[]
+  constituencies ConstituencyLga[]
+  results        PollingUnitResult[]
 
   @@unique([stateId, name])
   @@index([stateId])
@@ -86,10 +92,12 @@ model Ward {
   name  String @db.VarChar(120)
   lgaId Int
 
-  lga          Lga           @relation(fields: [lgaId], references: [id])
-  members      Member[]
-  seats        Seat[]
-  pollingUnits PollingUnit[]
+  lga            Lga                 @relation(fields: [lgaId], references: [id])
+  members        Member[]
+  seats          Seat[]
+  pollingUnits   PollingUnit[]
+  constituencies ConstituencyWard[]
+  results        PollingUnitResult[]
 
   @@unique([lgaId, name])
   @@index([lgaId])
@@ -110,15 +118,19 @@ model PollingUnit {
 
   wardId Int
 
-  ward    Ward     @relation(fields: [wardId], references: [id])
+  ward    Ward                @relation(fields: [wardId], references: [id])
   members Member[]
+  seats   Seat[]
+  results PollingUnitResult[]
 
   @@index([wardId])
   @@index([wardId, name])
   @@map("polling_units")
 }
 
-/* ─────────────────────────────────────────────────────────────── identity */
+/**
+ * ─────────────────────────────────────────────────────────────── identity
+ */
 
 model User {
   id            BigInt     @id @default(autoincrement())
@@ -134,22 +146,23 @@ model User {
   lastLoginAt   DateTime?  @db.Timestamptz
   createdAt     DateTime   @default(now()) @db.Timestamptz
 
-  member  Member?
-  otps    OtpCode[]
+  member Member?
+  otps   OtpCode[]
+
   @@map("users")
 }
 
 // §7.2: registration is complete only after phone OTP. Codes are hashed and
 // single-use with a five-minute expiry, per §13.2.
 model OtpCode {
-  id        BigInt    @id @default(autoincrement())
-  userId    BigInt
-  codeHash  String
-  purpose   OtpPurpose @default(REGISTRATION)
-  expiresAt DateTime  @db.Timestamptz
-  consumedAt DateTime? @db.Timestamptz
-  attempts  Int       @default(0)
-  createdAt DateTime  @default(now()) @db.Timestamptz
+  id         BigInt     @id @default(autoincrement())
+  userId     BigInt
+  codeHash   String
+  purpose    OtpPurpose @default(REGISTRATION)
+  expiresAt  DateTime   @db.Timestamptz
+  consumedAt DateTime?  @db.Timestamptz
+  attempts   Int        @default(0)
+  createdAt  DateTime   @default(now()) @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -169,17 +182,17 @@ model Member {
   /// to survive being read down a phone line. See lib/referrals.js.
   referralCode String? @unique @db.VarChar(12)
 
-  surname    String    @db.VarChar(60)
-  firstName  String    @db.VarChar(60)
-  middleName String?   @db.VarChar(60)
-  gender     Gender?
+  surname     String    @db.VarChar(60)
+  firstName   String    @db.VarChar(60)
+  middleName  String?   @db.VarChar(60)
+  gender      Gender?
   dateOfBirth DateTime? @db.Date
   // The URL the app renders. Written by lib/photos.js when a member uploads,
   // and pointed at /api/members/<id>/photo?v=<version>. It stays a plain
   // string so moving the bytes to a CDN later is a change in one file.
-  photoUrl   String?
-  occupation String?   @db.VarChar(80)
-  address    String?
+  photoUrl    String?
+  occupation  String?   @db.VarChar(80)
+  address     String?
 
   stateId       Int  @db.SmallInt
   lgaId         Int
@@ -204,12 +217,15 @@ model Member {
   referrer  Member?  @relation("Referrals", fields: [referredById], references: [id])
   referrals Member[] @relation("Referrals")
 
-  appointments      Appointment[]  @relation("Holder")
-  appointmentsMade  Appointment[]  @relation("Appointer")
-  applications      Application[]  @relation("Applicant")
-  decisions         Application[]  @relation("Decider")
+  appointments      Appointment[]       @relation("Holder")
+  appointmentsMade  Appointment[]       @relation("Appointer")
+  applications      Application[]       @relation("Applicant")
+  decisions         Application[]       @relation("Decider")
   applicationEvents ApplicationEvent[]
   auditEntries      AuditLog[]
+  resultsSubmitted  PollingUnitResult[] @relation("ResultSubmitter")
+  resultsVerified   PollingUnitResult[] @relation("ResultVerifier")
+  broadcasts        Broadcast[]         @relation("BroadcastSender")
 
   @@index([wardId])
   @@index([lgaId])
@@ -224,24 +240,22 @@ model Member {
 
 /**
  * A member's profile photograph, held as bytes rather than as a file path.
- *
  * The app has no object store and no persistent disk — Next.js rebuilds wipe
  * anything written under public/, and a serverless instance's filesystem is
  * gone the moment the request ends. Postgres is the only storage this project
  * already has that survives a deploy, and an avatar is small: everything here
  * is re-encoded to a 512px WebP before it is stored, which lands at 20–60KB.
- *
  * A separate table, not a column on `members`, because the bytes must never be
  * dragged into a directory query. Nothing selects from here except the one
  * route that serves the image.
  */
 model MemberPhoto {
-  memberId BigInt @id
-  bytes    Bytes
-  mimeType String @db.VarChar(40)
-  width    Int    @db.SmallInt
-  height   Int    @db.SmallInt
-  byteSize Int
+  memberId  BigInt   @id
+  bytes     Bytes
+  mimeType  String   @db.VarChar(40)
+  width     Int      @db.SmallInt
+  height    Int      @db.SmallInt
+  byteSize  Int
   // Content hash. It is the `?v=` in the photo URL and the ETag on the
   // response, which is what lets the image be cached for a year and still
   // change the instant a member uploads a new one.
@@ -253,22 +267,24 @@ model MemberPhoto {
   @@map("member_photos")
 }
 
-/* ────────────────────────────────────────────────────────── roles & seats */
+/**
+ * ────────────────────────────────────────────────────────── roles & seats
+ */
 
 model RoleDefinition {
-  id           Int      @id @default(autoincrement()) @db.SmallInt
-  code         String   @unique @db.VarChar(24) // ST_COORD, LG_SEC, WD_OFFICER…
-  title        String   @db.VarChar(80)
+  id           Int     @id @default(autoincrement()) @db.SmallInt
+  code         String  @unique @db.VarChar(24) // ST_COORD, LG_SEC, WD_OFFICER…
+  title        String  @db.VarChar(80)
   tier         Tier
-  // 1 = NATIONAL … 5 = WARD. The Descendant Rule compares these.
-  tierRank     Int      @db.SmallInt
-  seatsPerUnit Int      @default(1) @db.SmallInt
-  isAdmin      Boolean  @default(false)
+  // 1 = NATIONAL … 6 = POLLING_UNIT. The Descendant Rule compares these.
+  tierRank     Int     @db.SmallInt
+  seatsPerUnit Int     @default(1) @db.SmallInt
+  isAdmin      Boolean @default(false)
   // Functional national offices (§6.10): nationwide read, no appointment power.
-  isFunctional Boolean  @default(false)
+  isFunctional Boolean @default(false)
   // Role code that approves applications to this seat (§8.2).
-  approverRole String?  @db.VarChar(24)
-  sortOrder    Int      @default(0) @db.SmallInt
+  approverRole String? @db.VarChar(24)
+  sortOrder    Int     @default(0) @db.SmallInt
 
   seats Seat[]
 
@@ -286,43 +302,46 @@ model Seat {
   status    SeatStatus @default(VACANT)
 
   // Exactly one of these is set, matching scopeType. NATION sets none.
-  zoneId  Int? @db.SmallInt
-  stateId Int? @db.SmallInt
-  lgaId   Int?
-  wardId  Int?
+  zoneId        Int? @db.SmallInt
+  stateId       Int? @db.SmallInt
+  lgaId         Int?
+  wardId        Int?
+  pollingUnitId Int?
 
-  role  RoleDefinition @relation(fields: [roleId], references: [id])
-  zone  Zone?          @relation(fields: [zoneId], references: [id])
-  state State?         @relation(fields: [stateId], references: [id])
-  lga   Lga?           @relation(fields: [lgaId], references: [id])
-  ward  Ward?          @relation(fields: [wardId], references: [id])
+  role        RoleDefinition @relation(fields: [roleId], references: [id])
+  zone        Zone?          @relation(fields: [zoneId], references: [id])
+  state       State?         @relation(fields: [stateId], references: [id])
+  lga         Lga?           @relation(fields: [lgaId], references: [id])
+  ward        Ward?          @relation(fields: [wardId], references: [id])
+  pollingUnit PollingUnit?   @relation(fields: [pollingUnitId], references: [id])
 
   appointments Appointment[]
   applications Application[]
 
   // One seat per role per scope per index — the uniqueness the plan's DDL had.
-  @@unique([roleId, scopeType, zoneId, stateId, lgaId, wardId, seatIndex], name: "seat_identity")
+  @@unique([roleId, scopeType, zoneId, stateId, lgaId, wardId, pollingUnitId, seatIndex], name: "seat_identity")
   @@index([status])
   @@index([scopeType, status])
   @@index([stateId, status])
   @@index([lgaId, status])
   @@index([wardId, status])
+  @@index([pollingUnitId, status])
   @@map("seats")
 }
 
 // Never deleted. Ending an appointment sets endDate and status, so the full
 // history of every seat stays reconstructable (§8.4, succession).
 model Appointment {
-  id           BigInt            @id @default(autoincrement())
-  seatId       BigInt
-  memberId     BigInt
+  id            BigInt            @id @default(autoincrement())
+  seatId        BigInt
+  memberId      BigInt
   appointedById BigInt?
-  startDate    DateTime          @default(now()) @db.Date
-  endDate      DateTime?         @db.Date
-  endReason    EndReason?
-  endNote      String?
-  status       AppointmentStatus @default(ACTIVE)
-  createdAt    DateTime          @default(now()) @db.Timestamptz
+  startDate     DateTime          @default(now()) @db.Date
+  endDate       DateTime?         @db.Date
+  endReason     EndReason?
+  endNote       String?
+  status        AppointmentStatus @default(ACTIVE)
+  createdAt     DateTime          @default(now()) @db.Timestamptz
 
   seat        Seat    @relation(fields: [seatId], references: [id])
   member      Member  @relation("Holder", fields: [memberId], references: [id])
@@ -336,7 +355,9 @@ model Appointment {
   @@map("appointments")
 }
 
-/* ──────────────────────────────────────────────────────────── applications */
+/**
+ * ──────────────────────────────────────────────────────────── applications
+ */
 
 model Application {
   id           BigInt            @id @default(autoincrement())
@@ -381,7 +402,9 @@ model ApplicationEvent {
   @@map("application_events")
 }
 
-/* ────────────────────────────────────────────────────────────────── audit */
+/**
+ * ────────────────────────────────────────────────────────────────── audit
+ */
 
 // Append-only. §13.2 requires UPDATE and DELETE to be revoked for the
 // application role at the database level; that grant is in the migration.
@@ -405,7 +428,9 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-/* ────────────────────────────────────────────────────────────────── enums */
+/**
+ * ────────────────────────────────────────────────────────────────── enums
+ */
 
 enum Region {
   NORTH
@@ -418,6 +443,7 @@ enum Tier {
   STATE
   LGA
   WARD
+  POLLING_UNIT
 }
 
 enum ScopeType {
@@ -426,6 +452,9 @@ enum ScopeType {
   STATE
   LGA
   WARD
+  // The sixth tier, and the one the whole structure exists to reach. Everything
+  // above it coordinates; this is where a vote is actually cast and counted.
+  POLLING_UNIT
 }
 
 enum SeatStatus {
@@ -480,4 +509,336 @@ enum OtpPurpose {
   REGISTRATION
   LOGIN
   PASSWORD_RESET
+}
+
+/**
+ * ────────────────────────────────────────────────────────────────── election
+ * ── WHAT THIS TABLE IS, AND WHAT IT IS NOT ────────────────────────────────
+ * These are MAP's own returns, collected by the movement's own agents at the
+ * polling units they were appointed to. They are a parallel vote tabulation.
+ * They are NOT INEC's results and nothing built on them may say otherwise.
+ * Where a coordinator can also read INEC's declared figure for their unit,
+ * it is recorded alongside — in its own columns, never merged — so that the
+ * gap between what an agent witnessed and what was declared is itself a
+ * number the movement can see. A schema that stored one number would make
+ * that comparison impossible to make later.
+ * ─────────────────────────────────────────────────────────────────────────
+ */
+
+model Party {
+  id        Int    @id @default(autoincrement()) @db.SmallInt
+  code      String @unique @db.VarChar(12) // ADC, APC, PDP, LP, NNPP
+  name      String @db.VarChar(80)
+  /// The party's own colour, for the map and the charts. Stored rather than
+  /// hard-coded, because a chart that invents a party's colour is a chart
+  /// nobody in Nigerian politics will trust at a glance.
+  colour    String @db.VarChar(9)
+  sortOrder Int    @default(100) @db.SmallInt
+
+  candidates Candidate[]
+  votes      ResultVote[]
+
+  @@map("parties")
+}
+
+enum ElectionType {
+  PRESIDENTIAL
+  GOVERNORSHIP
+  SENATE
+  HOUSE_OF_REPS
+}
+
+enum ElectionStatus {
+  DRAFT // being set up; not visible to agents or the public
+  OPEN // polls closed, agents submitting
+  CLOSED // no further submissions accepted
+  ARCHIVED
+}
+
+model Election {
+  id        Int            @id @default(autoincrement()) @db.SmallInt
+  type      ElectionType
+  name      String         @db.VarChar(80) // "2027 Presidential Election"
+  year      Int            @db.SmallInt
+  heldOn    DateTime       @db.Date
+  status    ElectionStatus @default(DRAFT)
+  createdAt DateTime       @default(now()) @db.Timestamptz
+
+  candidates Candidate[]
+  results    PollingUnitResult[]
+
+  @@unique([type, year])
+  @@index([status])
+  @@map("elections")
+}
+
+/**
+ * Who is on the ballot.
+ * Scoped, because only a presidential election has one ballot nationwide. A
+ * governorship candidate stands in one state, a senator in one senatorial
+ * district, a representative in one federal constituency — so the candidate
+ * carries the constituency it is contested in, and `null` means nationwide.
+ */
+model Candidate {
+  id             Int    @id @default(autoincrement())
+  electionId     Int    @db.SmallInt
+  partyId        Int    @db.SmallInt
+  name           String @db.VarChar(120)
+  /// Null for a presidential candidate: the whole federation is the ballot.
+  constituencyId Int?
+
+  election     Election      @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  party        Party         @relation(fields: [partyId], references: [id])
+  constituency Constituency? @relation(fields: [constituencyId], references: [id])
+
+  @@unique([electionId, partyId, constituencyId])
+  @@index([electionId])
+  @@map("candidates")
+}
+
+enum ConstituencyType {
+  /// One per state, plus the FCT. Governorship is contested here.
+  STATE
+  /// 109 of them: three per state and one for the FCT. Whole LGAs.
+  SENATORIAL
+  /// 360 of them. Mostly whole LGAs; some split an LGA between two, which is
+  /// why the ward join table exists alongside the LGA one.
+  FEDERAL
+}
+
+/**
+ * The geography an election is contested in, above the polling unit.
+ * The INEC register in public/geo carries states, LGAs, wards and polling
+ * units — the administrative hierarchy. It does not carry electoral
+ * constituencies, which cut across it: a federal constituency can be two LGAs,
+ * or one LGA, or part of one. So they are their own table with their own
+ * membership, and a result rolls up through whichever ones contain its ward.
+ */
+model Constituency {
+  id      Int              @id @default(autoincrement())
+  type    ConstituencyType
+  code    String           @unique @db.VarChar(24)
+  name    String           @db.VarChar(120)
+  stateId Int              @db.SmallInt
+
+  state      State              @relation(fields: [stateId], references: [id])
+  candidates Candidate[]
+  lgas       ConstituencyLga[]
+  wards      ConstituencyWard[]
+
+  @@index([type, stateId])
+  @@map("constituencies")
+}
+
+/// Whole LGAs inside a constituency. Covers every senatorial district and most
+/// federal constituencies.
+model ConstituencyLga {
+  constituencyId Int
+  lgaId          Int
+
+  constituency Constituency @relation(fields: [constituencyId], references: [id], onDelete: Cascade)
+  lga          Lga          @relation(fields: [lgaId], references: [id])
+
+  @@id([constituencyId, lgaId])
+  @@index([lgaId])
+  @@map("constituency_lgas")
+}
+
+/// Individual wards, for the federal constituencies that split an LGA. Only
+/// populated for those; everywhere else the LGA join is the complete answer.
+model ConstituencyWard {
+  constituencyId Int
+  wardId         Int
+
+  constituency Constituency @relation(fields: [constituencyId], references: [id], onDelete: Cascade)
+  ward         Ward         @relation(fields: [wardId], references: [id])
+
+  @@id([constituencyId, wardId])
+  @@index([wardId])
+  @@map("constituency_wards")
+}
+
+enum ResultStatus {
+  /// An agent has submitted it. This is the default and the honest one.
+  SUBMITTED
+  /// A coordinator above them has checked it against the sheet photograph.
+  VERIFIED
+  /// Something is wrong with it. Kept, never deleted — a disputed return is
+  /// evidence, and deleting it would be the single most suspicious thing this
+  /// system could do.
+  DISPUTED
+}
+
+/**
+ * One agent's return from one polling unit for one election.
+ * Unique on (election, polling unit): a booth reports once. A correction is an
+ * amendment to this row with the previous values kept in the audit log, not a
+ * second row — two returns from one booth is the ambiguity the whole design
+ * exists to avoid.
+ */
+model PollingUnitResult {
+  id            BigInt @id @default(autoincrement())
+  electionId    Int    @db.SmallInt
+  pollingUnitId Int
+
+  /// Denormalised from the polling unit so that aggregating a state does not
+  /// have to join four tables for every one of its five thousand booths.
+  /// Written by the server from the unit, never accepted from the client.
+  wardId  Int
+  lgaId   Int
+  stateId Int @db.SmallInt
+
+  registeredVoters Int? @db.Integer
+  accreditedVoters Int? @db.Integer
+  /// Ballots rejected at the count. Part of the arithmetic that has to balance.
+  rejectedBallots  Int? @db.Integer
+
+  /// INEC's own declared figure for this unit, where the agent could read it.
+  /// Its own column, never merged with the agent's count: the gap between the
+  /// two is the thing worth looking at.
+  inecAccredited Int? @db.Integer
+  inecTotalVotes Int? @db.Integer
+
+  status ResultStatus @default(SUBMITTED)
+
+  /// §13.2 evidence trail. The agent affirms both before the form will submit,
+  /// and both are stored — an unconfirmed return is not a return.
+  locationConfirmed Boolean @default(false)
+  termsAccepted     Boolean @default(false)
+
+  submittedById BigInt
+  submittedAt   DateTime  @default(now()) @db.Timestamptz
+  verifiedById  BigInt?
+  verifiedAt    DateTime? @db.Timestamptz
+  note          String?
+
+  election    Election     @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  pollingUnit PollingUnit  @relation(fields: [pollingUnitId], references: [id])
+  ward        Ward         @relation(fields: [wardId], references: [id])
+  lga         Lga          @relation(fields: [lgaId], references: [id])
+  state       State        @relation(fields: [stateId], references: [id])
+  submittedBy Member       @relation("ResultSubmitter", fields: [submittedById], references: [id])
+  verifiedBy  Member?      @relation("ResultVerifier", fields: [verifiedById], references: [id])
+  votes       ResultVote[]
+  sheet       ResultSheet?
+
+  @@unique([electionId, pollingUnitId])
+  @@index([electionId, stateId])
+  @@index([electionId, lgaId])
+  @@index([electionId, wardId])
+  @@index([electionId, status])
+  @@index([submittedAt])
+  @@map("polling_unit_results")
+}
+
+/// Votes for one party at one polling unit. A row per party that scored,
+/// rather than a column per party, because the party list is data.
+model ResultVote {
+  resultId BigInt
+  partyId  Int    @db.SmallInt
+  votes    Int    @db.Integer
+
+  result PollingUnitResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  party  Party             @relation(fields: [partyId], references: [id])
+
+  @@id([resultId, partyId])
+  @@index([partyId])
+  @@map("result_votes")
+}
+
+/**
+ * The photograph of the EC8A sheet.
+ * This is the evidence, and it is the reason the numbers above are worth
+ * anything. Stored in its own table so a result row stays small enough to
+ * aggregate over — the same reason member photographs are not on the member.
+ */
+model ResultSheet {
+  resultId  BigInt   @id
+  bytes     Bytes
+  mimeType  String   @db.VarChar(40)
+  width     Int      @db.SmallInt
+  height    Int      @db.SmallInt
+  byteSize  Int
+  /// Content hash. It is the `?v=` in the URL and the ETag on the response, and
+  /// it is also what proves the image served today is the image submitted on
+  /// election night.
+  version   String   @db.VarChar(16)
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  result PollingUnitResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+
+  @@map("result_sheets")
+}
+
+/**
+ * ────────────────────────────────────────────────────────────── broadcasts
+ */
+
+enum BroadcastStatus {
+  /// Accepted, recipients resolved, nothing handed to the gateway yet.
+  QUEUED
+  /// Batches are going out. A send that stays here has crashed mid-flight.
+  SENDING
+  /// The gateway accepted every batch.
+  SENT
+  /// The gateway accepted some batches and refused others.
+  PARTIAL
+  /// Nothing went out.
+  FAILED
+}
+
+/**
+ * One bulk SMS, sent by one coordinator to their own territory.
+ *
+ * ── WHY THE MESSAGE IS KEPT ────────────────────────────────────────────────
+ * A movement that can text a hundred thousand people needs a record of every
+ * time it did, what it said, and who authorised it — kept for the same reason
+ * the audit log is append-only. "Who sent that?" is a question that gets asked
+ * after the message has already reached every phone in a state.
+ *
+ * ── WHY THERE IS NO ROW PER RECIPIENT ──────────────────────────────────────
+ * A national broadcast to a register of a million members would write a
+ * million rows for one button press, and the table would be larger than the
+ * register itself within a year. The counts are stored instead, with a bounded
+ * sample of the numbers the gateway refused — which is the part somebody
+ * actually acts on. Per-message delivery receipts, if they are ever needed,
+ * belong in the gateway's own dashboard, not in this database.
+ */
+model Broadcast {
+  id       BigInt @id @default(autoincrement())
+  senderId BigInt
+
+  /// The territory as it was at the moment of sending. Denormalised on purpose:
+  /// the sender may be moved or removed later, and the record of who this went
+  /// to must not change when that happens.
+  scopeType  ScopeType
+  scopeId    Int?
+  scopeLabel String    @db.VarChar(160)
+
+  body String @db.VarChar(1600)
+  /// Billable parts per recipient, worked out at send time from the encoding.
+  /// Stored because the price is `segments × recipients` and the gateway's
+  /// invoice arrives a month later.
+  segments Int @db.SmallInt
+
+  recipients Int
+  delivered  Int @default(0)
+  failed     Int @default(0)
+
+  status   BroadcastStatus @default(QUEUED)
+  provider String?         @db.VarChar(24)
+  /// The gateway's own words when something went wrong, and up to fifty of the
+  /// numbers it refused. Bounded: a failure affecting every recipient must not
+  /// write the whole register into one row.
+  error    String?
+  rejected Json?
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz
+  completedAt DateTime? @db.Timestamptz
+
+  sender Member @relation("BroadcastSender", fields: [senderId], references: [id])
+
+  @@index([senderId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("broadcasts")
 }

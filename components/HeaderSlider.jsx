@@ -9,6 +9,7 @@ import Counter from "@/components/ui/Counter";
 import Reveal from "@/components/ui/Reveal";
 import BrandIcon from "@/components/ui/BrandIcon";
 import { socials } from "@/lib/site";
+import JoinCta from "@/components/JoinCta";
 
 /* The movement's own scale, not the aspirant's record. This is MAP's front
    door, and his record has a page of its own. Four figures is the most a reader
@@ -56,14 +57,11 @@ export default function Hero() {
 
             <Reveal delay={210}>
               <div className="mt-7 flex flex-col gap-0 sm:flex-row">
-                <Button href="/join" variant="dark" size="lg">
-                  Join MAP
-                  <ArrowRight
-                    size={17}
-                    strokeWidth={3}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </Button>
+                <JoinCta
+                  variant="dark"
+                  size="lg"
+                  arrowClassName="transition-transform duration-300 group-hover:translate-x-1"
+                />
                 <Button
                   href="/structure"
                   variant="outline"

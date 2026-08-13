@@ -15,6 +15,7 @@ import Avatar from "@/components/ui/Avatar";
 import GrowthChart from "@/components/ui/GrowthChart";
 import PhotoUploader from "@/components/PhotoUploader";
 import ReferralCard from "@/components/ReferralCard";
+import SignOutForm from "@/components/SignOutForm";
 import { currentSession } from "@/lib/session";
 import { growthSeries, referralList, referralSummary } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
@@ -324,14 +325,14 @@ export default async function Portal() {
                 {member.email}
               </p>
             )}
-            <form action="/api/auth/logout" method="post" className="mt-5">
+            <SignOutForm className="mt-5">
               <button
                 type="submit"
                 className="w-full border-2 border-ink-950 px-4 py-2.5 text-[0.75rem] font-bold tracking-[0.08em] text-ink-950 uppercase transition-colors hover:bg-ink-950 hover:text-white"
               >
                 Sign out
               </button>
-            </form>
+            </SignOutForm>
           </div>
 
           <p className="flex items-start gap-3 bg-white p-4 text-[0.8125rem] leading-relaxed text-content-muted">

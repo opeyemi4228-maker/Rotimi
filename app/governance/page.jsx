@@ -4,6 +4,7 @@ import { ArrowRight, Users, Building2, Scale, Award, BookOpen, Briefcase, Gradua
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import { assets } from "@/assets/assets";
+import JoinCta from "@/components/JoinCta";
 
 const AmaechiPresidentialCampaign = () => {
   const [expandedRole, setExpandedRole] = useState(null);
@@ -321,9 +322,13 @@ const AmaechiPresidentialCampaign = () => {
           <Button href="#vision" variant="inverse" size="lg">
             The vision
           </Button>
-          <Button href="/join" variant="inverseOutline" size="lg" className="sm:-ml-0.5">
-            Join the movement
-          </Button>
+          <JoinCta
+            label="Join the movement"
+            variant="inverseOutline"
+            size="lg"
+            className="sm:-ml-0.5"
+            arrow={false}
+          />
         </div>
       </PageHeader>
 

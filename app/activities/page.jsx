@@ -8,6 +8,7 @@ import Reveal from "@/components/ui/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { cn } from "@/lib/utils";
 import { zones } from "@/lib/map";
+import JoinCta from "@/components/JoinCta";
 
 /* §4.4: the activity taxonomy. These are the movement's own categories, so
    they are fixed here; the events themselves come from the Secretariat. */
@@ -60,10 +61,7 @@ export default function Activities() {
           eyebrow="The calendar"
           title="Upcoming and past activities"
           actions={
-            <Button href="/join" variant="outline" size="md">
-              Join to RSVP
-              <ArrowRight size={16} strokeWidth={2.75} />
-            </Button>
+            <JoinCta label="Join to RSVP" signedInLabel="Your membership" variant="outline" size="md" />
           }
         />
 
@@ -200,10 +198,7 @@ export default function Activities() {
                   : "Past activities are published with photographs and attendance figures once the organising officer files the report."}
               </p>
               <div className="mt-8">
-                <Button href="/join" variant="primary" size="md">
-                  Join to be notified
-                  <ArrowRight size={16} strokeWidth={2.75} />
-                </Button>
+                <JoinCta label="Join to be notified" variant="primary" size="md" />
               </div>
             </div>
           )}

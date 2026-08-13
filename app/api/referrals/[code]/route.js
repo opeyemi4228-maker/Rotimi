@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { findReferrer } from "@/lib/referrals";
+import { callerKey, limit, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -18,7 +19,13 @@ export const runtime = "nodejs";
  * number, no membership number, and no distinction in the response between a
  * code that is unused and one that never existed.
  */
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
+  /* Unauthenticated by necessity, cheap to call, and it answers a yes/no about
+     whether a code exists — which is exactly the shape somebody would use to
+     walk the code space. */
+  const quota = limit("referralLookup", callerKey(request));
+  if (!quota.ok) return tooMany(quota.retryAfter);
+
   const { code } = await params;
   const referrer = await findReferrer(code);
 

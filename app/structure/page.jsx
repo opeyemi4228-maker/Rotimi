@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Counter from "@/components/ui/Counter";
 import Reveal from "@/components/ui/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
+import JoinCta from "@/components/JoinCta";
 import {
   tiers,
   seatCapacity,
@@ -41,10 +42,7 @@ export default function Structure() {
         lead="MAP is not a mailing list. It is a chain of accountable offices running from the National Executive down to every ward in Nigeria, and every seat in it is either filled by a named officer or openly vacant."
       >
         <div className="flex flex-wrap gap-3">
-          <Button href="/join" variant="inverse" size="lg">
-            Register as a member
-            <ArrowRight size={17} strokeWidth={2.75} />
-          </Button>
+          <JoinCta label="Register as a member" variant="inverse" size="lg" />
           <Button href="#find" variant="inverseOutline" size="lg">
             Find your coordinator
           </Button>
@@ -334,10 +332,11 @@ export default function Structure() {
                 </p>
 
                 <div className="mt-7">
-                  <Button href="/join" variant="ember" size="md">
-                    Register in {match.name}
-                    <ArrowRight size={16} strokeWidth={2.75} />
-                  </Button>
+                  <JoinCta
+                    label={`Register in ${match.name}`}
+                    variant="ember"
+                    size="md"
+                  />
                 </div>
               </div>
             ) : (
@@ -465,10 +464,7 @@ export default function Structure() {
               </p>
             </div>
             <div className="shrink-0">
-              <Button href="/join" variant="inverse" size="lg">
-                Join MAP
-                <ArrowRight size={17} strokeWidth={2.75} />
-              </Button>
+              <JoinCta variant="inverse" size="lg" />
             </div>
           </div>
         </div>

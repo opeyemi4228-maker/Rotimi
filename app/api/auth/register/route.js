@@ -9,11 +9,17 @@ import {
 } from "@/lib/auth";
 import { createMember, publicMember } from "@/lib/store";
 import { findReferrer } from "@/lib/referrals";
+import { callerKey, limit, tooMany } from "@/lib/ratelimit";
 
 /* Node runtime, not edge: node:crypto's scryptSync is not available on edge. */
 export const runtime = "nodejs";
 
 export async function POST(request) {
+  const quota = limit("register", callerKey(request));
+  if (!quota.ok) {
+    return tooMany(quota.retryAfter, "Too many registrations from this connection. Try again later.");
+  }
+
   let body;
   try {
     body = await request.json();

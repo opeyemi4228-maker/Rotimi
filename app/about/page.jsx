@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { coreValues, objectives, nationalExecutive, totalSeats } from "@/lib/map";
+import JoinCta from "@/components/JoinCta";
 
 export const metadata = {
   title: "About the Movement",
@@ -29,10 +30,7 @@ export default function About() {
         lead="A nationwide political movement organising in all 36 states, the Federal Capital Territory, 774 Local Government Areas and over 8,000 wards behind one objective, the presidential aspiration of Rt. Hon. Chibuike Rotimi Amaechi."
       >
         <div className="flex flex-wrap gap-3">
-          <Button href="/join" variant="inverse" size="lg">
-            Join MAP
-            <ArrowRight size={17} strokeWidth={2.75} />
-          </Button>
+          <JoinCta variant="inverse" size="lg" />
           <Button href="/structure" variant="inverseOutline" size="lg">
             See the structure
           </Button>
@@ -235,10 +233,7 @@ export default function About() {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">
-              <Button href="/join" variant="dark" size="lg">
-                Join MAP
-                <ArrowRight size={17} strokeWidth={2.75} />
-              </Button>
+              <JoinCta variant="dark" size="lg" />
               <Button href="/structure" variant="outline" size="lg">
                 See the structure
               </Button>

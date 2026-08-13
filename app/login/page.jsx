@@ -6,8 +6,10 @@ import { ArrowRight, Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useViewer } from "@/lib/useViewer";
 
 export default function Login() {
+  const { member } = useViewer();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -163,15 +165,31 @@ export default function Login() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-[0.875rem] text-content-muted">
-            Not a member yet?{" "}
-            <Link
-              href="/join"
-              className="font-bold text-brand-700 underline underline-offset-4 transition-colors hover:text-ember-600"
-            >
-              Join MAP
-            </Link>
-          </p>
+          {/* A member who is already signed in can still reach this page — from
+              a bookmark, or to switch accounts. The form stays, so switching
+              still works, but they are not invited to join a movement they are
+              already in. */}
+          {member ? (
+            <p className="mt-8 text-center text-[0.875rem] text-content-muted">
+              Signed in as {member.name}.{" "}
+              <Link
+                href="/portal"
+                className="font-bold text-brand-700 underline underline-offset-4 transition-colors hover:text-ember-600"
+              >
+                Go to your membership
+              </Link>
+            </p>
+          ) : (
+            <p className="mt-8 text-center text-[0.875rem] text-content-muted">
+              Not a member yet?{" "}
+              <Link
+                href="/join"
+                className="font-bold text-brand-700 underline underline-offset-4 transition-colors hover:text-ember-600"
+              >
+                Join MAP
+              </Link>
+            </p>
+          )}
         </div>
       </section>
     </>

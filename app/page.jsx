@@ -9,6 +9,10 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 import { assets } from "@/assets/assets";
 import { tiers } from "@/lib/map";
 import { latestNews } from "@/lib/news";
+import { SLOTS, videoGrid, videos } from "@/lib/videos";
+import VideoCard, { VideoSlot } from "@/components/VideoCard";
+import JoinCta from "@/components/JoinCta";
+import TakePart from "@/components/TakePart";
 
 /* This page is MAP's, not Amaechi's.
    It used to run eight sections of his record: the offices he held, twelve
@@ -113,44 +117,43 @@ export default function Home() {
       <Section className="bg-white">
         <SectionHeading index={4} eyebrow="Take part" title="Two ways in" />
 
-        <ul className="mt-14 grid gap-px bg-ink-200 md:grid-cols-2">
-          {[
-            {
-              href: "/join",
-              title: "Register as a member",
-              body: "Under two minutes. Your ward, your state, your membership number.",
-            },
-            {
-              href: "/activities",
-              title: "Turn up",
-              body: "Congresses, rallies and registration drives, listed by zone and state.",
-            },
-          ].map((card, index) => (
-            <Reveal as="li" key={card.href} delay={index * 70} className="bg-white">
-              <Link
-                href={card.href}
-                className="group flex h-full flex-col p-7 transition-colors duration-300 hover:bg-ink-50"
-              >
-                <h3 className="font-display text-lg font-extrabold tracking-tight text-ink-950">
-                  {card.title}
-                </h3>
-                <p className="prose-body mt-2.5 text-[0.9375rem]">{card.body}</p>
-                <ArrowUpRight
-                  size={20}
-                  strokeWidth={2.5}
-                  aria-hidden="true"
-                  className="mt-auto pt-6 text-ink-300 transition-colors duration-300 group-hover:text-ember-500"
-                />
-              </Link>
-            </Reveal>
-          ))}
+        <TakePart />
+      </Section>
+
+      {/* --------------------------------------------------------- videos
+          Three across, and the same component the library page uses. The empty
+          slots are drawn here too rather than the section hiding itself: a
+          homepage that grows a whole new band the week footage arrives is a
+          homepage whose shape nobody can plan around. */}
+      <Section className="bg-ink-50">
+        <SectionHeading
+          index={5}
+          eyebrow="Watch"
+          title="Amaechi, on the record"
+          lead="Speeches, rallies and footage from the field, in his own words."
+          actions={
+            <Button href="/videos" variant="outline" size="md">
+              {videos.length ? "All videos" : "The video library"}
+              <ArrowRight size={16} strokeWidth={2.75} />
+            </Button>
+          }
+        />
+
+        <ul className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {videoGrid(3)
+            .slice(0, 3)
+            .map((entry, index) => (
+              <Reveal as="li" key={entry.video?.slug ?? `slot-${entry.slot}`} delay={index * 70}>
+                {entry.video ? <VideoCard video={entry.video} /> : <VideoSlot index={entry.slot} />}
+              </Reveal>
+            ))}
         </ul>
       </Section>
 
       {/* ---------------------------------------------------------- news */}
-      <Section className="bg-ink-50">
+      <Section className="bg-white">
         <SectionHeading
-          index={5}
+          index={6}
           eyebrow="Latest"
           title="From the newsroom"
           actions={
@@ -208,10 +211,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="shrink-0">
-              <Button href="/join" variant="dark" size="lg">
-                Join MAP
-                <ArrowRight size={17} strokeWidth={2.75} />
-              </Button>
+              <JoinCta variant="dark" size="lg" />
             </div>
           </div>
         </div>

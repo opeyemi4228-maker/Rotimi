@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+import { callerKey, forget, limit, tooMany } from "@/lib/ratelimit";
 import { cookies } from "next/headers";
 import {
   parseIdentifier,
@@ -20,6 +22,16 @@ const DUMMY_HASH =
   "Y2Fubm90bWF0Y2hhbnl0aGluZ2V2ZXJiZWNhdXNlaXRpc25vdGFyZWFsZGVyaXZlZGtleQ";
 
 export async function POST(request) {
+  /* Before anything is read or hashed. Verifying a password is deliberately
+     expensive — scrypt with N=65536 — so an unlimited login endpoint is both a
+     credential-stuffing target and a way to exhaust the server's CPU with
+     nothing but wrong guesses. */
+  const caller = callerKey(request);
+  const quota = limit("login", caller);
+  if (!quota.ok) {
+    return tooMany(quota.retryAfter, "Too many sign-in attempts. Try again in a few minutes.");
+  }
+
   let body;
   try {
     body = await request.json();
@@ -63,6 +75,10 @@ export async function POST(request) {
   }
 
   const store = await cookies();
+  /* Cleared on success, so one evening of mistyping a password does not lock
+     a coordinator out for the rest of the window. Only failures accumulate. */
+  forget("login", caller);
+
   store.set(
     SESSION_COOKIE,
     createSession({ sub: member.id, name: member.name }),

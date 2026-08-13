@@ -9,8 +9,11 @@ import {
   MapPin,
   Network,
   Share2,
+  Gauge,
+  MessageSquare,
   UserCheck,
   Users,
+  Vote,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -31,17 +34,32 @@ import { cn } from "@/lib/utils";
  *                     nobody at all.
  *   PU Tracker        only at LGA and Ward. The 40 polling units in a ward are
  *                     a working list; the 176,623 in the country are not.
+ *   Console           only for a scope that reads nationwide, because every
+ *                     query behind it is unscoped.
+ *   Bulk SMS          only for a scope that carries the broadcast capability —
+ *                     an admin coordinator, not a functional director.
  */
 const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutGrid },
+  /* First after the dashboard on election day, and the only entry that leads
+     to a form rather than a table. Shown to everybody: a coordinator above the
+     booth needs to see what their agents are looking at. */
+  { href: "/admin/election", label: "Election returns", icon: Vote },
   { href: "/admin/leadership", label: "Coordinator Directory", icon: UserCheck },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/lga-coordinators", label: "LGA Coordinators", icon: Network, regional: true },
   { href: "/admin/referrals", label: "Referrals", icon: Share2 },
+  /* Only for a scope that speaks for a territory. A functional director reads
+     nationwide but broadcasts nowhere, and §6.11 says so through `broadcast`. */
+  { href: "/admin/broadcast", label: "Bulk SMS", icon: MessageSquare, broadcaster: true },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/polling-units", label: "PU Tracker", icon: MapPin, local: true },
   { href: "/admin/structure", label: "Structure", icon: Network },
   { href: "/admin/id-card", label: "ID Card", icon: CreditCard },
+  /* Last, and only for a scope that reads nationwide. It is the one page in the
+     secretariat with no territory filter on any of its queries, so it is not
+     advertised to anybody who would be refused it. */
+  { href: "/admin/console", label: "Console", icon: Gauge, nationwide: true },
 ];
 
 /**
@@ -49,18 +67,20 @@ const ITEMS = [
  * down as booleans. The icons cannot cross that boundary — they are functions —
  * so the list lives here and the server sends only the facts that change it.
  */
-function itemsFor({ local, regional }) {
+function itemsFor({ local, regional, nationwide, broadcaster }) {
   return ITEMS.filter((item) => {
     if (item.local && !local) return false;
     if (item.regional && !regional) return false;
+    if (item.nationwide && !nationwide) return false;
+    if (item.broadcaster && !broadcaster) return false;
     return true;
   });
 }
 
 /** Phone: a scrolling row above the content. */
-export default function AdminNav({ local, regional }) {
+export default function AdminNav({ local, regional, nationwide, broadcaster }) {
   const pathname = usePathname();
-  const items = itemsFor({ local, regional });
+  const items = itemsFor({ local, regional, nationwide, broadcaster });
 
   return (
     <nav
@@ -79,9 +99,9 @@ export default function AdminNav({ local, regional }) {
 }
 
 /** Desk: the rail. */
-export function AdminRail({ local, regional }) {
+export function AdminRail({ local, regional, nationwide, broadcaster }) {
   const pathname = usePathname();
-  const items = itemsFor({ local, regional });
+  const items = itemsFor({ local, regional, nationwide, broadcaster });
 
   return (
     <nav aria-label="Secretariat" className="flex flex-col gap-0.5 px-3">

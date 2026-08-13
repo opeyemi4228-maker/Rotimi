@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import Avatar from "@/components/ui/Avatar";
 import { currentSession } from "@/lib/session";
+import { can } from "@/lib/permissions";
 import AdminNav from "./AdminNav";
 import Sidebar from "./Sidebar";
 
@@ -82,6 +83,13 @@ export default async function AdminLayout({ children }) {
      tool a National Coordinator has been given. */
   const local = scope.scopeType === "LGA" || scope.scopeType === "WARD";
   const regional = !local; // NATION, ZONE and STATE have LGA coordinators beneath them
+  /* The console reads the whole platform, so only a scope entitled to the whole
+     platform is told it exists. The page checks this again for itself — this
+     boolean decides what is drawn, never what is permitted. */
+  const nationwide = Boolean(scope.isSuperAdmin || scope.readsNationwide);
+  /* §6.11's broadcast capability, resolved here so the rail and the page agree
+     about who may text a territory. The page checks it again for itself. */
+  const broadcaster = can(scope, "broadcast");
 
   return (
     <div className="min-h-screen bg-ink-50 lg:flex">
@@ -89,6 +97,8 @@ export default async function AdminLayout({ children }) {
         <Sidebar
           local={local}
           regional={regional}
+          nationwide={nationwide}
+          broadcaster={broadcaster}
           tierLabel={scope.tierLabel}
           unitName={scope.unitName}
           roleTitle={scope.roleTitle}
@@ -113,7 +123,12 @@ export default async function AdminLayout({ children }) {
               <Avatar name={member.name} src={member.photoUrl} size="sm" />
             </Link>
           </div>
-          <AdminNav local={local} regional={regional} />
+          <AdminNav
+            local={local}
+            regional={regional}
+            nationwide={nationwide}
+            broadcaster={broadcaster}
+          />
         </header>
 
         <main className="mx-auto w-full max-w-[100rem] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">

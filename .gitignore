@@ -54,3 +54,8 @@ scripts/.inec-source.json
 
 # Prisma client is generated from prisma/schema.prisma by `npm run db:generate`
 lib/generated/
+
+# geoBoundaries download cache. 4.3MB of raw GeoJSON that scripts/build-map.mjs
+# re-fetches on demand; the committed artefact is the projected output under
+# public/geo/map, which is what the app actually serves.
+scripts/.boundaries/

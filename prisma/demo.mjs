@@ -34,6 +34,12 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
+/* Two of these LGA names changed when the register was refreshed against
+   INEC's current delimitation — "Eti Osa" is published as "Eti-Osa" and
+   "Obio Akpor" as "Obio/Akpor". They are matched by name here rather than by
+   code, so a future revision can break this script again; if it does, the
+   error names the LGA it could not find. */
+
 /**
  * One holder per rung. `home` is where they are registered as a member —
  * §8.1.3 ties a member to their own territory — and for the tiers where that
@@ -51,7 +57,7 @@ const CAST = [
     name: "Fatima Bello",
     phone: "08100000002",
     role: "ASST_COORD_SOUTH",
-    home: { state: "Lagos", lga: "Eti Osa" },
+    home: { state: "Lagos", lga: "Eti-Osa" },
     note: "South East, South South and South West only. Cannot see the north.",
   },
   {
@@ -65,7 +71,7 @@ const CAST = [
     name: "Ibinabo Georgewill",
     phone: "08100000004",
     role: "ZC_SS",
-    home: { state: "Rivers", lga: "Obio Akpor" },
+    home: { state: "Rivers", lga: "Obio/Akpor" },
     note: "The six South South states. Appoints State Coordinators.",
   },
   {
@@ -91,6 +97,22 @@ const CAST = [
     scope: { state: "Rivers", lga: "Port Harcourt", ward: "Diobu" },
     home: { state: "Rivers", lga: "Port Harcourt", ward: "Diobu" },
     note: "The bottom rung: view and report only, no appointment powers.",
+  },
+  {
+    /* The sixth tier, and the only one of the nine whose dashboard is a form
+       rather than a table. Registered at the booth they hold, because a booth
+       agent who does not vote there is a booth agent somebody will ask about. */
+    name: "Emeka Nwachukwu",
+    phone: "08100000009",
+    role: "PU_AGENT",
+    scope: {
+      state: "Rivers",
+      lga: "Port Harcourt",
+      ward: "Diobu",
+      pollingUnit: "RIV-022-17-001",
+    },
+    home: { state: "Rivers", lga: "Port Harcourt", ward: "Diobu" },
+    note: "Polling Unit Coordinator. Files election returns from one booth.",
   },
   {
     name: "Aisha Suleiman",
@@ -145,6 +167,12 @@ async function seatFor(role, scope = {}) {
       where: { name: scope.ward, lga: { name: scope.lga, state: { name: scope.state } } },
     });
     where.wardId = ward.id;
+  } else if (definition.tier === "POLLING_UNIT") {
+    /* By INEC code, not by name: two units in one ward can share a name, and
+       the code is the only thing that identifies one of them. */
+    const unit = await prisma.pollingUnit.findUnique({ where: { code: scope.pollingUnit } });
+    if (!unit) throw new Error(`No polling unit with code ${scope.pollingUnit}`);
+    where.pollingUnitId = unit.id;
   }
   // NATIONAL and ZONAL seats are already unique: national seats carry no scope
   // row, and each ZC_* role exists exactly once, on its own zone.
@@ -214,6 +242,12 @@ async function main() {
           state: ward.lga.state.name,
           lga: ward.lga.name,
           ward: ward.name,
+          /* A booth agent is registered at the booth they hold. Sent as the
+             INEC code, which is what the register resolves on — two units in
+             one ward can share a name. */
+          ...(person.scope?.pollingUnit
+            ? { pollingUnitCode: person.scope.pollingUnit }
+            : {}),
           password: PASSWORD,
         }),
       });

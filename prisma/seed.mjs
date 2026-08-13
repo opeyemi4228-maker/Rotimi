@@ -57,6 +57,10 @@ loadEnv({ path: ".env.local", override: true });
 const GEO_DIR = path.join(process.cwd(), "public", "geo");
 const args = new Set(process.argv.slice(2));
 const SKIP_PU = args.has("--skip-polling-units");
+/* The 176,623 polling unit seats. Separate from --skip-polling-units, because
+   the units themselves are reference data the registration form needs, while
+   their seats are only needed once somebody is being appointed to one. */
+const SKIP_PU_SEATS = args.has("--skip-pu-seats");
 const RESET_SEATS = args.has("--reset-seats");
 const DRY_RUN = args.has("--dry-run");
 
@@ -624,6 +628,22 @@ async function main() {
     }
   }
 
+  /* ── The sixth tier ──────────────────────────────────────────────────────
+     One seat per polling unit: 176,623 of them, which is nearly twice every
+     other tier in the structure put together. It is also the tier that matters
+     most on election day, because it is the only one that can witness a result
+     rather than be told one.
+
+     Skippable, because a first run against an empty database is long enough
+     without it and a developer working on the ward tier does not need 176,623
+     extra rows. */
+  if (!SKIP_PU_SEATS) {
+    const booths = await prisma.pollingUnit.findMany({ select: { id: true } });
+    for (const unit of booths) push("PU_AGENT", "POLLING_UNIT", { pollingUnitId: unit.id }, 1);
+  } else {
+    console.log("  polling unit seats: skipped (--skip-pu-seats)");
+  }
+
   /* ── Which of those seats are missing ─────────────────────────────────────
      NOT `skipDuplicates`. The seat_identity unique index spans four nullable
      scope columns, and Postgres does not treat NULL as equal to NULL in a
@@ -644,6 +664,7 @@ async function main() {
       seat.stateId ?? "",
       seat.lgaId ?? "",
       seat.wardId ?? "",
+      seat.pollingUnitId ?? "",
       seat.seatIndex,
     ].join("|");
 
@@ -656,6 +677,7 @@ async function main() {
       stateId: true,
       lgaId: true,
       wardId: true,
+      pollingUnitId: true,
       seatIndex: true,
       _count: { select: { appointments: true } },
     },
