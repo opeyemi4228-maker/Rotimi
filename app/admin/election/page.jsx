@@ -56,13 +56,24 @@ export default async function ElectionPage({ searchParams }) {
                 appointment, never chosen on a form. Ward Coordinators appoint
                 to these seats.
               </p>
-              <Link
-                href="/admin/structure"
-                className="mt-5 inline-flex items-center gap-1.5 text-[0.75rem] font-bold tracking-[0.08em] text-brand-700 uppercase hover:text-ember-600"
-              >
-                See the seats in your territory
-                <ArrowRight size={14} strokeWidth={3} />
-              </Link>
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2">
+                {/* A coordinator arriving here wants the returns, not a
+                    refusal. The form is not for them; the dashboard is. */}
+                <Link
+                  href="/admin/results"
+                  className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold tracking-[0.08em] text-brand-700 uppercase hover:text-ember-600"
+                >
+                  Watch the returns from your territory
+                  <ArrowRight size={14} strokeWidth={3} />
+                </Link>
+                <Link
+                  href="/admin/structure"
+                  className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold tracking-[0.08em] text-ink-500 uppercase hover:text-ink-950"
+                >
+                  See the seats in your territory
+                  <ArrowRight size={14} strokeWidth={3} />
+                </Link>
+              </div>
             </div>
           </div>
         </Card>

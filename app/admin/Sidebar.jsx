@@ -30,6 +30,7 @@ export default function Sidebar({
   regional,
   nationwide,
   broadcaster,
+  agent,
   tierLabel,
   unitName,
   roleTitle,
@@ -70,6 +71,7 @@ export default function Sidebar({
           regional={regional}
           nationwide={nationwide}
           broadcaster={broadcaster}
+          agent={agent}
         />
       </div>
 

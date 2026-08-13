@@ -8,6 +8,7 @@ import {
   LayoutGrid,
   MapPin,
   Network,
+  Radio,
   Share2,
   Gauge,
   MessageSquare,
@@ -38,13 +39,26 @@ import { cn } from "@/lib/utils";
  *                     query behind it is unscoped.
  *   Bulk SMS          only for a scope that carries the broadcast capability —
  *                     an admin coordinator, not a functional director.
+ *   File a return     only for a Polling Unit Coordinator. Everybody above them
+ *                     views results; nobody above them enters one.
  */
 const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutGrid },
-  /* First after the dashboard on election day, and the only entry that leads
-     to a form rather than a table. Shown to everybody: a coordinator above the
-     booth needs to see what their agents are looking at. */
-  { href: "/admin/election", label: "Election returns", icon: Vote },
+  /* Election day, and the two halves of it are deliberately separate entries.
+
+     "File a return" is the only doing surface in the whole secretariat, and it
+     belongs to exactly one office: the Polling Unit Coordinator standing at the
+     booth. Nobody above them may enter a result — a National Coordinator typing
+     a number into a system whose whole claim is "these came from our agents at
+     the booths" would destroy the thing the system is for. So the entry is not
+     shown to anybody else, and the form refuses them server-side as well.
+
+     "Live results" is the reading surface, and it is for everybody with a seat.
+     The query behind it is cut to the reader's territory by resultScope(): the
+     federation for a National Coordinator, one state for a State Coordinator,
+     one ward for a Ward Coordinator. */
+  { href: "/admin/results", label: "Live results", icon: Radio },
+  { href: "/admin/election", label: "File a return", icon: Vote, agent: true },
   { href: "/admin/leadership", label: "Coordinator Directory", icon: UserCheck },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/lga-coordinators", label: "LGA Coordinators", icon: Network, regional: true },
@@ -67,20 +81,21 @@ const ITEMS = [
  * down as booleans. The icons cannot cross that boundary — they are functions —
  * so the list lives here and the server sends only the facts that change it.
  */
-function itemsFor({ local, regional, nationwide, broadcaster }) {
+function itemsFor({ local, regional, nationwide, broadcaster, agent }) {
   return ITEMS.filter((item) => {
     if (item.local && !local) return false;
     if (item.regional && !regional) return false;
     if (item.nationwide && !nationwide) return false;
     if (item.broadcaster && !broadcaster) return false;
+    if (item.agent && !agent) return false;
     return true;
   });
 }
 
 /** Phone: a scrolling row above the content. */
-export default function AdminNav({ local, regional, nationwide, broadcaster }) {
+export default function AdminNav({ local, regional, nationwide, broadcaster, agent }) {
   const pathname = usePathname();
-  const items = itemsFor({ local, regional, nationwide, broadcaster });
+  const items = itemsFor({ local, regional, nationwide, broadcaster, agent });
 
   return (
     <nav
@@ -99,9 +114,9 @@ export default function AdminNav({ local, regional, nationwide, broadcaster }) {
 }
 
 /** Desk: the rail. */
-export function AdminRail({ local, regional, nationwide, broadcaster }) {
+export function AdminRail({ local, regional, nationwide, broadcaster, agent }) {
   const pathname = usePathname();
-  const items = itemsFor({ local, regional, nationwide, broadcaster });
+  const items = itemsFor({ local, regional, nationwide, broadcaster, agent });
 
   return (
     <nav aria-label="Secretariat" className="flex flex-col gap-0.5 px-3">

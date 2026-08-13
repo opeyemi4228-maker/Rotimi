@@ -90,6 +90,9 @@ export default async function AdminLayout({ children }) {
   /* §6.11's broadcast capability, resolved here so the rail and the page agree
      about who may text a territory. The page checks it again for itself. */
   const broadcaster = can(scope, "broadcast");
+  /* Only the booth holds the form. Everybody above it reads the results and
+     enters none of them — see the note on ITEMS in AdminNav. */
+  const agent = scope.scopeType === "POLLING_UNIT";
 
   return (
     <div className="min-h-screen bg-ink-50 lg:flex">
@@ -99,6 +102,7 @@ export default async function AdminLayout({ children }) {
           regional={regional}
           nationwide={nationwide}
           broadcaster={broadcaster}
+          agent={agent}
           tierLabel={scope.tierLabel}
           unitName={scope.unitName}
           roleTitle={scope.roleTitle}
@@ -128,6 +132,7 @@ export default async function AdminLayout({ children }) {
             regional={regional}
             nationwide={nationwide}
             broadcaster={broadcaster}
+            agent={agent}
           />
         </header>
 

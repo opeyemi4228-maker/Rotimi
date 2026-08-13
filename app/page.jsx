@@ -12,6 +12,7 @@ import { latestNews } from "@/lib/news";
 import { SLOTS, videoGrid, videos } from "@/lib/videos";
 import VideoCard, { VideoSlot } from "@/components/VideoCard";
 import JoinCta from "@/components/JoinCta";
+import ResultsBand from "@/components/ResultsBand";
 import TakePart from "@/components/TakePart";
 
 /* This page is MAP's, not Amaechi's.
@@ -113,9 +114,32 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ------------------------------------------------------ take part */}
+      {/* --------------------------------------------------------- results
+          Between the structure and the call to action, because the count IS the
+          structure working: 176,623 booths with a named agent in each is an
+          abstraction until the returns start arriving from them. */}
       <Section className="bg-white">
-        <SectionHeading index={4} eyebrow="Take part" title="Two ways in" />
+        <SectionHeading
+          index={4}
+          eyebrow="Election night"
+          title="The count, as it comes in"
+          lead="Our own agents' returns from the polling units they were appointed to — state by state, ward by ward, down to the booth."
+          actions={
+            <Button href="/results" variant="outline" size="md">
+              Live results
+              <ArrowUpRight size={16} strokeWidth={2.75} />
+            </Button>
+          }
+        />
+
+        <div className="mt-12">
+          <ResultsBand />
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------------ take part */}
+      <Section className="bg-ink-50">
+        <SectionHeading index={5} eyebrow="Take part" title="Two ways in" />
 
         <TakePart />
       </Section>
@@ -125,9 +149,9 @@ export default function Home() {
           slots are drawn here too rather than the section hiding itself: a
           homepage that grows a whole new band the week footage arrives is a
           homepage whose shape nobody can plan around. */}
-      <Section className="bg-ink-50">
+      <Section className="bg-white">
         <SectionHeading
-          index={5}
+          index={6}
           eyebrow="Watch"
           title="Amaechi, on the record"
           lead="Speeches, rallies and footage from the field, in his own words."
