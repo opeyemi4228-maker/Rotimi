@@ -246,3 +246,139 @@ export function UnitTable({ rows, hrefFor, unitLabel, className }) {
     </div>
   );
 }
+
+/**
+ * The bottom of the tree: one row per polling unit, with the votes as filed.
+ *
+ * ── WHY THIS TABLE IS DIFFERENT FROM UnitTable ─────────────────────────────
+ * Every level above this one shows a leader and an aggregate, because an LGA
+ * does not have votes of its own — it has a sum of the booths inside it. A
+ * polling unit is where the numbers actually come from, so this shows the
+ * numbers themselves: every party's count, the accreditation, and whether there
+ * is a photograph of the sheet behind it.
+ *
+ * The sheet column is the point of the whole system. A return with no
+ * photograph is a number somebody typed, and it is marked as such rather than
+ * shown identically to one with evidence behind it.
+ * ───────────────────────────────────────────────────────────────────────────
+ */
+export function BoothTable({ rows, parties, className }) {
+  return (
+    <div className={cn("overflow-x-auto border-2 border-ink-950 bg-white", className)}>
+      <table className="w-full min-w-[52rem] border-collapse text-left">
+        <thead>
+          <tr className="border-b-2 border-ink-950">
+            <th scope="col" className="px-4 py-3 text-[0.6875rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              Polling unit
+            </th>
+            {parties.map((party) => (
+              <th
+                key={party.id}
+                scope="col"
+                className="px-3 py-3 text-right text-[0.6875rem] font-bold tracking-[0.1em] whitespace-nowrap text-ink-500 uppercase"
+              >
+                <span className="flex items-center justify-end gap-1.5">
+                  <span aria-hidden="true" className="size-2 shrink-0" style={{ background: party.colour }} />
+                  {party.code}
+                </span>
+              </th>
+            ))}
+            {["Total", "Accredited", "Sheet"].map((head) => (
+              <th
+                key={head}
+                scope="col"
+                className="px-4 py-3 text-right text-[0.6875rem] font-bold tracking-[0.1em] whitespace-nowrap text-ink-500 uppercase"
+              >
+                {head}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id} className="border-b border-ink-200 last:border-0">
+              <td className="px-4 py-3 text-[0.875rem] text-ink-950">
+                <span className="font-semibold">{row.name}</span>
+                <span className="mt-0.5 block font-mono text-[0.6875rem] text-content-subtle">
+                  {row.code}
+                </span>
+              </td>
+              {parties.map((party) => {
+                const votes = row.votes[party.id] ?? null;
+                const leading = row.leader?.partyId === party.id;
+                return (
+                  <td
+                    key={party.id}
+                    className={cn(
+                      "px-3 py-3 text-right text-[0.875rem] tabular-nums",
+                      votes == null
+                        ? "text-ink-300"
+                        : leading
+                          ? "font-bold text-ink-950"
+                          : "text-content-muted"
+                    )}
+                  >
+                    {votes == null ? "—" : votes.toLocaleString()}
+                  </td>
+                );
+              })}
+              <td className="px-4 py-3 text-right text-[0.875rem] font-bold text-ink-950 tabular-nums">
+                {row.reported ? row.total.toLocaleString() : "—"}
+              </td>
+              <td className="px-4 py-3 text-right text-[0.875rem] text-content-muted tabular-nums">
+                {row.accredited == null ? "—" : row.accredited.toLocaleString()}
+              </td>
+              <td className="px-4 py-3 text-right text-[0.8125rem]">
+                {!row.reported ? (
+                  <span className="text-ink-400">Not in</span>
+                ) : row.hasSheet ? (
+                  <span className="font-bold text-brand-700">On file</span>
+                ) : (
+                  <span className="font-bold text-ember-700">None</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/**
+ * State → LGA → ward, as a trail you can walk back up.
+ *
+ * The drilldown is three clicks deep and the map stops being a map at the ward,
+ * so without this a reader two levels in has no way to tell where they are or
+ * how to get out.
+ */
+export function Trail({ steps, className }) {
+  return (
+    <nav aria-label="Where you are" className={cn("flex flex-wrap items-center gap-x-2 gap-y-1", className)}>
+      {steps.map((step, index) => (
+        <span key={step.label} className="flex items-center gap-2">
+          {index > 0 && (
+            <span aria-hidden="true" className="text-ink-300">
+              /
+            </span>
+          )}
+          {step.href ? (
+            <Link
+              href={step.href}
+              className="text-[0.75rem] font-bold tracking-[0.08em] text-ink-500 uppercase hover:text-ink-950"
+            >
+              {step.label}
+            </Link>
+          ) : (
+            <span
+              aria-current="page"
+              className="text-[0.75rem] font-bold tracking-[0.08em] text-ink-950 uppercase"
+            >
+              {step.label}
+            </span>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
