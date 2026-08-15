@@ -1,4 +1,4 @@
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { structure, territory } from "@/lib/dashboard";
 import { PageTitle, Coverage, Table, Row, Cell, Empty, Stat } from "../ui";
 
@@ -15,7 +15,7 @@ const TIER_LABEL = {
 const LEVEL_LABEL = { zone: "Zone", state: "State", lga: "LGA", ward: "Ward" };
 
 export default async function StructurePage() {
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const [tiers, units] = await Promise.all([structure(scope), territory(scope)]);
 
   if (!tiers) return <Empty>No territory is assigned to your seat.</Empty>;

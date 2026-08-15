@@ -1,4 +1,4 @@
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { mfaRequired, mfaState } from "@/lib/mfa";
 import { PageTitle } from "../ui";
 import MfaPanel from "./MfaPanel";
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
  * without explanation is a control they will work around.
  */
 export default async function SecurityPage() {
-  const { member, scope } = await currentSession();
+  const { member, scope } = await requireSecretariat();
   const state = await mfaState(member.userId);
   const required = mfaRequired(scope);
 

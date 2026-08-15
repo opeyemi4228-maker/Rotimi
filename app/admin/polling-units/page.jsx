@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPin, Search, Users, CircleSlash } from "lucide-react";
 
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { pollingUnits } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
 import { Card, Coverage, Empty, PageTitle, StatTile, Table, Row, Cell } from "../ui";
@@ -36,7 +36,7 @@ export default async function PollingUnitsPage({ searchParams }) {
   const page = Math.max(1, Number(params?.page ?? 1) || 1);
   const order = ORDERS.some((o) => o.key === params?.order) ? params.order : "empty";
 
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const result = await pollingUnits(scope, { q, page, perPage: PER_PAGE, order });
 
   if (!result) return <Empty>No territory is assigned to your seat.</Empty>;

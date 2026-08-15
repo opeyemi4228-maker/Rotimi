@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BadgeCheck, Share2, TrendingUp, Users } from "lucide-react";
 
 import GrowthChart from "@/components/ui/GrowthChart";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { overview, territory, verificationSplit } from "@/lib/dashboard";
 import { growthSeries } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export default async function AnalyticsPage({ searchParams }) {
     ? Number(params.range)
     : 90;
 
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const [stats, series, units, verification] = await Promise.all([
     overview(scope),
     growthSeries({ scope, days }),

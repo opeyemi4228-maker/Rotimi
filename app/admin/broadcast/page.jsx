@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { can } from "@/lib/permissions";
 import { audience, history } from "@/lib/broadcast";
 import { smsProvider } from "@/lib/sms";
@@ -52,7 +52,7 @@ const TONE = {
  * ───────────────────────────────────────────────────────────────────────────
  */
 export default async function BroadcastPage() {
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
 
   if (!scope || !can(scope, "broadcast")) notFound();
 

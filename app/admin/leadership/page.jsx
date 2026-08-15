@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import Avatar from "@/components/ui/Avatar";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { leadership } from "@/lib/dashboard";
 import { PageTitle, Table, Row, Cell, Empty, Tag } from "../ui";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,7 @@ export default async function LeadershipPage({ searchParams }) {
   const params = await searchParams;
   const tier = TIERS.some((t) => t.key === params?.tier) ? params.tier : null;
 
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const seats = await leadership(scope, { tier });
 
   if (!seats) return <Empty>No territory is assigned to your seat.</Empty>;

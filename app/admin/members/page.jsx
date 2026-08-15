@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { members } from "@/lib/dashboard";
 import { PageTitle, Table, Row, Cell, Empty, Tag } from "../ui";
 
@@ -15,7 +15,7 @@ export default async function MembersPage({ searchParams }) {
   const q = String(params?.q ?? "");
   const page = Math.max(1, Number(params?.page ?? 1) || 1);
 
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const result = await members(scope, { q, page, perPage: PER_PAGE });
 
   const href = (n) => `/admin/members?${new URLSearchParams({ ...(q ? { q } : {}), page: String(n) })}`;

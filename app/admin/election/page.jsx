@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CircleCheck, ShieldAlert, TriangleAlert } from "lucide-react";
 
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { agentElections, agentPost, ballot, ownReturn } from "@/lib/results";
 import { cn } from "@/lib/utils";
 import { Card, Empty, PageTitle, Tag } from "../ui";
@@ -33,7 +33,7 @@ const TYPE_LABEL = {
  */
 export default async function ElectionPage({ searchParams }) {
   const params = await searchParams;
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const post = await agentPost(scope?.memberId);
 
   if (!post) {

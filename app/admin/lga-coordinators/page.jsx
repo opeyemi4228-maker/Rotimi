@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, TriangleAlert } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { leadership } from "@/lib/dashboard";
 import { Card, Empty, PageTitle, StatTile, Table, Row, Cell, Tag } from "../ui";
 import { UserCheck, UserX, Users } from "lucide-react";
@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
  * the movement most needs to see.
  */
 export default async function LgaCoordinatorsPage() {
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const seats = await leadership(scope, { tier: "LGA" });
 
   if (!seats) return <Empty>No territory is assigned to your seat.</Empty>;

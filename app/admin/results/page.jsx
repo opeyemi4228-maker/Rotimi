@@ -6,7 +6,7 @@ import LiveRefresh from "@/components/results/LiveRefresh";
 import UnitGrid from "@/components/results/UnitGrid";
 import { InecGap, Reporting, Standings, UnitTable } from "@/components/results/ResultsPanel";
 import { prisma } from "@/lib/db";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { resultScope } from "@/lib/permissions";
 import {
   breakdown,
@@ -72,7 +72,7 @@ const BELOW = {
  * ───────────────────────────────────────────────────────────────────────────
  */
 export default async function AdminResults({ searchParams }) {
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   if (!scope) notFound();
 
   const cut = resultScope(scope);

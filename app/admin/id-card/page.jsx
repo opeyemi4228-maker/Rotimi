@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 import MembershipCard from "@/components/MembershipCard";
-import { currentMember } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { cardData, cardFilename, inlineCardSvg } from "@/lib/idcard";
 import { Card, PageTitle } from "../ui";
 
@@ -20,7 +20,11 @@ export const dynamic = "force-dynamic";
  * differs on their card is the one naming the office.
  */
 export default async function AdminIdCard() {
-  const member = await currentMember();
+  /* Guarded like every other secretariat page. This one shows the reader their
+     own card and leaks nothing scoped, so the check is about consistency rather
+     than exposure — a page without the line is a page somebody has to stop and
+     reason about, and that is the cost the guard exists to avoid. */
+  const { member } = await requireSecretariat();
   if (!member) redirect("/login?next=/admin/id-card");
 
   const requestHeaders = await headers();

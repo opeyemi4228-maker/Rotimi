@@ -13,7 +13,7 @@ import {
 
 import Avatar from "@/components/ui/Avatar";
 import GrowthChart from "@/components/ui/GrowthChart";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { memberDetail } from "@/lib/dashboard";
 import { growthSeries, referralList } from "@/lib/referrals";
 import { Card, SectionHead, Table, Row, Cell, Empty, Tag } from "../../ui";
@@ -39,7 +39,7 @@ const date = (iso) =>
  */
 export default async function MemberPage({ params }) {
   const { id } = await params;
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
 
   const member = await memberDetail(scope, id);
   if (!member) notFound();

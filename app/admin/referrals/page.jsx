@@ -3,7 +3,7 @@ import { Share2, TrendingUp, UserPlus, Users } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";
 import GrowthChart from "@/components/ui/GrowthChart";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { overview } from "@/lib/dashboard";
 import { growthSeries, topRecruiters } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,7 @@ export default async function ReferralsPage({ searchParams }) {
     ? Number(params.range)
     : 30;
 
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
   const [stats, series, recruiters] = await Promise.all([
     overview(scope),
     growthSeries({ scope, days }),

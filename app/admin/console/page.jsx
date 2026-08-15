@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import GrowthChart from "@/components/ui/GrowthChart";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { can } from "@/lib/permissions";
 import { growthSeries } from "@/lib/referrals";
 import {
@@ -131,7 +131,7 @@ const EXPORTS = [
  * ───────────────────────────────────────────────────────────────────────────
  */
 export default async function ConsolePage() {
-  const { scope } = await currentSession();
+  const { scope } = await requireSecretariat();
 
   if (!scope || !(scope.isSuperAdmin || can(scope, "viewNationwide"))) notFound();
 

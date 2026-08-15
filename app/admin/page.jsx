@@ -12,7 +12,7 @@ import {
 
 import Avatar from "@/components/ui/Avatar";
 import GrowthChart from "@/components/ui/GrowthChart";
-import { currentSession } from "@/lib/session";
+import { requireSecretariat } from "@/lib/guard";
 import { newestMembers, overview, ownSeats, pollingUnits, territory } from "@/lib/dashboard";
 import { growthSeries, topRecruiters } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
@@ -52,7 +52,7 @@ function greeting() {
 }
 
 export default async function AdminOverview({ searchParams }) {
-  const { member, scope } = await currentSession();
+  const { member, scope } = await requireSecretariat();
   const params = await searchParams;
   const days = RANGES.some((range) => String(range.days) === params?.range)
     ? Number(params.range)

@@ -7,7 +7,6 @@ import { mfaRequired, mfaState } from "@/lib/mfa";
 import { can } from "@/lib/permissions";
 import AdminNav from "./AdminNav";
 import Sidebar from "./Sidebar";
-import MfaPanel from "./security/MfaPanel";
 
 export const metadata = {
   title: "Secretariat — MAP",
@@ -83,41 +82,19 @@ export default async function AdminLayout({ children }) {
      says and never works it out for itself. The polling unit tracker is only
      a working list at the two tiers that can walk it: 176,623 rows is not a
      tool a National Coordinator has been given. */
-  /* §13.2: state level and above must have a second factor. Enforced as a wall
-     in front of the secretariat rather than a refusal at sign-in — a
-     coordinator locked out of everything on election morning is a worse outcome
-     than the risk, and they keep their membership and the public site either
-     way. The only thing behind the wall is the thing the wall is for. */
+  /* §13.2: state level and above must have a second factor.
+
+     A redirect, not a panel. Returning a different tree from a layout does NOT
+     stop the page underneath rendering — React executes it and Next serialises
+     it into the flight payload, so the wall appears on screen with the entire
+     unscoped console sitting in the HTML behind it. `redirect()` throws, the
+     render aborts, and the response is a 307 with no body: nothing to leak.
+
+     The target is outside /admin for the obvious reason that anything inside it
+     would redirect to itself for ever. */
   if (mfaRequired(scope)) {
     const mfa = await mfaState(member.userId);
-    if (!mfa.enabled) {
-      return (
-        <div className="min-h-screen bg-ink-50">
-          <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
-            <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink-950">
-              Set up two-factor authentication to continue
-            </h1>
-            <p className="mt-3 max-w-prose text-[0.9375rem] leading-relaxed text-content-muted">
-              You hold {scope.roleTitle} for {scope.label}. A stolen password for a seat at
-              this level is not an account takeover, it is a territory takeover — the
-              whole register with every phone number in it, the exports, and the ability
-              to text all of them. §13.2 requires a second factor before the secretariat
-              opens, and this is the only thing standing between you and it.
-            </p>
-            <div className="mt-8">
-              <MfaPanel initial={{ enabled: false, recoveryLeft: 0, pending: false }} required />
-            </div>
-            <p className="mt-8 border-t border-ink-200 pt-6 text-[0.875rem] text-content-muted">
-              Your membership is unaffected —{" "}
-              <Link href="/portal" className="font-bold text-brand-700 underline underline-offset-4">
-                your portal
-              </Link>{" "}
-              and the public site are open as normal.
-            </p>
-          </div>
-        </div>
-      );
-    }
+    if (!mfa.enabled) redirect("/secure");
   }
 
   const local = scope.scopeType === "LGA" || scope.scopeType === "WARD";
