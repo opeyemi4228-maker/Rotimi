@@ -169,6 +169,15 @@ export default function Login() {
               a bookmark, or to switch accounts. The form stays, so switching
               still works, but they are not invited to join a movement they are
               already in. */}
+          <p className="mt-6 text-center text-[0.875rem] text-content-muted">
+            <Link
+              href="/reset"
+              className="font-bold text-brand-700 underline underline-offset-4 transition-colors hover:text-ember-600"
+            >
+              Forgotten your password?
+            </Link>
+          </p>
+
           {member ? (
             <p className="mt-8 text-center text-[0.875rem] text-content-muted">
               Signed in as {member.name}.{" "}

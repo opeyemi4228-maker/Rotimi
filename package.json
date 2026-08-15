@@ -18,7 +18,8 @@
     "db:studio": "prisma studio",
     "geo:build": "node scripts/build-geography.mjs",
     "referrals:backfill": "node scripts/backfill-referral-codes.mjs",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "node --import ./tests/setup.mjs --test \"tests/**/*.test.js\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",

@@ -10,6 +10,7 @@ import {
 import { createMember, publicMember } from "@/lib/store";
 import { findReferrer } from "@/lib/referrals";
 import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { issueOtp } from "@/lib/otp";
 
 /* Node runtime, not edge: node:crypto's scryptSync is not available on edge. */
 export const runtime = "nodejs";
@@ -68,6 +69,12 @@ export async function POST(request) {
       { status: 409 }
     );
   }
+  if (result.conflict === "nin") {
+    return NextResponse.json(
+      { errors: { nin: "That NIN is already registered to another member." } },
+      { status: 409 }
+    );
+  }
   if (result.conflict === "email") {
     return NextResponse.json(
       { errors: { email: "That email address is already registered." } },
@@ -83,6 +90,16 @@ export async function POST(request) {
       { status: 422 }
     );
   }
+
+  /* The phone gets a code straight away (§7.2). Deliberately not awaited into
+     the response path: a gateway that is slow or down must not stop somebody
+     finishing their registration, and the portal offers a resend. */
+  issueOtp({
+    userId: result.member.userId,
+    phone: result.member.phone,
+    purpose: "REGISTRATION",
+    message: "{code} is your MAP confirmation code. It expires in five minutes.",
+  }).catch((error) => console.error("[register] could not send confirmation code", error));
 
   // Registration signs you straight in: one less step, and the confirmation
   // page needs the membership number anyway.

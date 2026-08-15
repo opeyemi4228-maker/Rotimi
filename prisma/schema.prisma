@@ -202,6 +202,19 @@ model Member {
   // §13.2: envelope-encrypted at rest, never selected into a client payload.
   vinEncrypted String?
   ninEncrypted String?
+  /// A blind index over the NIN: HMAC-SHA256 keyed on NIN_ENCRYPTION_KEY.
+  ///
+  /// The ciphertext cannot be unique — AES-GCM uses a fresh IV every time, so
+  /// the same NIN encrypts to a different string on every write. But one
+  /// national identity number must verify exactly one member, or a single
+  /// person can register ten times and verify all ten. This column is what
+  /// makes that constraint expressible: same NIN, same HMAC, unique violation.
+  ///
+  /// It is a keyed hash and not a plain one on purpose. A plain SHA-256 of an
+  /// 11-digit number is trivially reversible by enumeration — all 10^11 of them
+  /// fit in a rainbow table — so the server key is the only thing standing
+  /// between this column and a list of everybody's NIN.
+  ninHash      String? @unique @db.VarChar(64)
 
   verification Verification @default(PENDING)
   referredById BigInt?

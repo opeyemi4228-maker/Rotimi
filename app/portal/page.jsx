@@ -16,6 +16,7 @@ import GrowthChart from "@/components/ui/GrowthChart";
 import PhotoUploader from "@/components/PhotoUploader";
 import ReferralCard from "@/components/ReferralCard";
 import SignOutForm from "@/components/SignOutForm";
+import VerifyCard from "./VerifyCard";
 import { currentSession } from "@/lib/session";
 import { growthSeries, referralList, referralSummary } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
@@ -283,35 +284,7 @@ export default async function Portal() {
             </p>
           )}
 
-          <div
-            className={cn(
-              "border-2 p-6",
-              verified ? "border-brand-600 bg-white" : "border-ember-500 bg-white"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              {verified ? (
-                <BadgeCheck size={18} className="text-brand-600" aria-hidden="true" />
-              ) : (
-                <ShieldAlert size={18} className="text-ember-600" aria-hidden="true" />
-              )}
-              <p className="text-[0.6875rem] font-bold tracking-[0.12em] text-ink-500 uppercase">
-                Verification
-              </p>
-            </div>
-
-            <p className="mt-3 font-display text-lg font-extrabold tracking-tight text-ink-950">
-              {verified ? "Verified" : "Not yet verified"}
-            </p>
-
-            {/* §7.2 — verification is not decoration, it is the gate on holding
-                office at LGA level and above. Say what it costs them. */}
-            <p className="mt-2 text-[0.875rem] leading-relaxed text-content-muted">
-              {verified
-                ? "You are eligible to hold office at any tier."
-                : "You can hold a ward seat now. Office at LGA level and above requires verification — a photograph and your voter's card number."}
-            </p>
-          </div>
+          <VerifyCard verified={verified} hasNin={member.hasNin} />
 
           <div className="border-2 border-ink-200 bg-white p-6">
             <p className="text-[0.6875rem] font-bold tracking-[0.12em] text-ink-500 uppercase">
