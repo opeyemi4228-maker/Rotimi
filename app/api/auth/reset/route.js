@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { hashPassword, normalisePhone } from "@/lib/auth";
 import { issueOtp, verifyOtp } from "@/lib/otp";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -28,7 +28,7 @@ const MIN_PASSWORD = 8;
  * ───────────────────────────────────────────────────────────────────────────
  */
 export async function POST(request) {
-  const quota = limit("passwordReset", callerKey(request));
+  const quota = await limitShared("passwordReset", callerKey(request));
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   let body;

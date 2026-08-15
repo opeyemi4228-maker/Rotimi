@@ -17,7 +17,10 @@ import PhotoUploader from "@/components/PhotoUploader";
 import ReferralCard from "@/components/ReferralCard";
 import SignOutForm from "@/components/SignOutForm";
 import VerifyCard from "./VerifyCard";
+import StandForOffice from "./StandForOffice";
 import { currentSession } from "@/lib/session";
+import { myApplications } from "@/lib/applications";
+import { vacanciesForMember } from "@/lib/vacancies";
 import { growthSeries, referralList, referralSummary } from "@/lib/referrals";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +55,12 @@ export default async function Portal() {
   ]);
 
   const verified = member.verification === "VERIFIED";
+
+  /* Only for a member with no office — somebody who already holds one cannot
+     hold a second, so offering them the form would be offering a refusal. */
+  const [vacancies, applications] = scope
+    ? [[], []]
+    : await Promise.all([vacanciesForMember(member), myApplications(member.id)]);
 
   return (
     <div className="min-h-screen bg-ink-50">
@@ -285,6 +294,11 @@ export default async function Portal() {
           )}
 
           <VerifyCard verified={verified} hasNin={member.hasNin} />
+
+          {/* Standing for office sits directly under verification, because
+              verification is what unlocks anything above the ward and the two
+              questions get asked in that order. */}
+          <StandForOffice vacancies={vacancies} applications={applications} />
 
           <div className="border-2 border-ink-200 bg-white p-6">
             <p className="text-[0.6875rem] font-bold tracking-[0.12em] text-ink-500 uppercase">

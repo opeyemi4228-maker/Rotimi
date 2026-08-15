@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { callerKey, forget, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, forgetShared, limitShared, tooMany } from "@/lib/ratelimit";
 import { cookies } from "next/headers";
 import {
   parseIdentifier,
@@ -29,7 +29,7 @@ export async function POST(request) {
      credential-stuffing target and a way to exhaust the server's CPU with
      nothing but wrong guesses. */
   const caller = callerKey(request);
-  const quota = limit("login", caller);
+  const quota = await limitShared("login", caller);
   if (!quota.ok) {
     return tooMany(quota.retryAfter, "Too many sign-in attempts. Try again in a few minutes.");
   }
@@ -125,7 +125,7 @@ export async function POST(request) {
   const store = await cookies();
   /* Cleared on success, so one evening of mistyping a password does not lock
      a coordinator out for the rest of the window. Only failures accumulate. */
-  forget("login", caller);
+  await forgetShared("login", caller);
 
   /* Last sign-in, which the console reports on and an audit needs. It was
      never being written. */

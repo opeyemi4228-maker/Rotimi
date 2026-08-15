@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { currentMember } from "@/lib/session";
 import { issueOtp, verifyOtp } from "@/lib/otp";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -53,7 +53,7 @@ export async function POST(request) {
     /* Metered by address as well as by the per-user floor inside issueOtp: the
        floor stops one person hammering their own number, this stops a script
        walking a list of accounts. */
-    const quota = limit("otpSend", callerKey(request));
+    const quota = await limitShared("otpSend", callerKey(request));
     if (!quota.ok) return tooMany(quota.retryAfter);
 
     const sent = await issueOtp({
@@ -73,7 +73,7 @@ export async function POST(request) {
   }
 
   /* ── verify ─────────────────────────────────────────────────────────── */
-  const quota = limit("otpVerify", `member:${member.id}`);
+  const quota = await limitShared("otpVerify", `member:${member.id}`);
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   const result = await verifyOtp({

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { findReferrer } from "@/lib/referrals";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
   /* Unauthenticated by necessity, cheap to call, and it answers a yes/no about
      whether a code exists — which is exactly the shape somebody would use to
      walk the code space. */
-  const quota = limit("referralLookup", callerKey(request));
+  const quota = await limitShared("referralLookup", callerKey(request));
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   const { code } = await params;

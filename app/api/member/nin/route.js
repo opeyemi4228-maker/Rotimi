@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { currentMember } from "@/lib/session";
 import { verifyWithNin } from "@/lib/store";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -22,7 +22,7 @@ export async function POST(request) {
   /* Metered because the unique index turns this into an oracle: without a
      limit, somebody could walk NINs and learn which ones are already in the
      register from the error message. */
-  const quota = limit("ninVerify", `member:${member.id}`);
+  const quota = await limitShared("ninVerify", `member:${member.id}`);
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   let body;

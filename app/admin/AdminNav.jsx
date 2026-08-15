@@ -14,6 +14,7 @@ import {
   Gauge,
   MessageSquare,
   UserCheck,
+  UserPlus,
   Users,
   Vote,
 } from "lucide-react";
@@ -61,6 +62,10 @@ const ITEMS = [
   { href: "/admin/results", label: "Live results", icon: Radio },
   { href: "/admin/election", label: "File a return", icon: Vote, agent: true },
   { href: "/admin/leadership", label: "Coordinator Directory", icon: UserCheck },
+  /* Shown to everybody with a seat; the page itself 404s for an office that
+     appoints to nothing, because isApproverFor() is the only thing that
+     decides and it needs the seats to answer. */
+  { href: "/admin/appointments", label: "Appointments", icon: UserPlus },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/lga-coordinators", label: "LGA Coordinators", icon: Network, regional: true },
   { href: "/admin/referrals", label: "Referrals", icon: Share2 },

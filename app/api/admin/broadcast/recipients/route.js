@@ -1,7 +1,7 @@
 import { currentSession } from "@/lib/session";
 import { can } from "@/lib/permissions";
 import { audience, recipients } from "@/lib/broadcast";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -41,7 +41,7 @@ export async function GET(request) {
   /* A directory of every member's phone number in a territory is the most
      copyable thing this app holds, so it is metered even for somebody entitled
      to read it. */
-  const quota = limit("recipientList", `member:${member.id}`);
+  const quota = await limitShared("recipientList", `member:${member.id}`);
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   const url = new URL(request.url);

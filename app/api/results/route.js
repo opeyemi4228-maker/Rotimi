@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { currentMember } from "@/lib/session";
 import { agentPost, ballot, fileReturn, validateReturn } from "@/lib/results";
 import { prisma } from "@/lib/db";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -27,7 +27,7 @@ const SHEET_MAX_EDGE = 1600;
  * ───────────────────────────────────────────────────────────────────────────
  */
 export async function POST(request) {
-  const quota = limit("results", callerKey(request));
+  const quota = await limitShared("results", callerKey(request));
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   const member = await currentMember();

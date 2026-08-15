@@ -17,7 +17,8 @@ import {
   tally,
 } from "@/lib/elections";
 import { cn } from "@/lib/utils";
-import { Card, Cell, Empty, PageTitle, Row, SectionHead, StatTile, Table, Tag } from "../ui";
+import { Card, Cell, Empty, PageTitle, Row, SectionHead, StatTile, Table } from "../ui";
+import ReviewRow from "./ReviewRow";
 
 export const metadata = { title: "Results — MAP Secretariat", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -149,11 +150,16 @@ export default async function AdminResults({ searchParams }) {
           parentId: cut.parentId,
           stateIds,
         }),
-    scopedReturns(filter, 12),
+    scopedReturns(filter, 12, scope.memberId),
   ]);
 
   const rows =
     cut.level === "pollingUnit" ? [] : await childRows(cut, stateIds, children);
+
+  /* Only a coordinator strictly above the booth may check a return, which is
+     everybody with a seat except the agent who filed it. The server checks this
+     again on every PATCH — this only decides what is drawn. */
+  const canReview = cut.level !== "pollingUnit";
 
   const silent = rows.filter((row) => !row.leader);
   const unevidenced = latest.filter((row) => !row.hasSheet).length;
@@ -286,8 +292,8 @@ export default async function AdminResults({ searchParams }) {
                 { label: "Polling unit" },
                 { label: "Ward" },
                 { label: "Votes", align: "right" },
-                { label: "Sheet" },
                 { label: "Status" },
+                { label: "Check it against the sheet", align: "right" },
               ]}
               empty={latest.length === 0 ? <Empty>No agent has filed yet.</Empty> : null}
             >
@@ -302,23 +308,7 @@ export default async function AdminResults({ searchParams }) {
                   </Cell>
                   <Cell className="text-content-muted">{row.ward}</Cell>
                   <Cell align="right" className="font-bold">{row.total.toLocaleString()}</Cell>
-                  <Cell>
-                    {row.hasSheet ? (
-                      <Link
-                        href={`/api/results/${row.id}/sheet`}
-                        className="text-[0.75rem] font-bold tracking-[0.08em] text-brand-700 uppercase hover:text-ember-600"
-                      >
-                        View
-                      </Link>
-                    ) : (
-                      <span className="text-[0.75rem] font-bold tracking-[0.08em] text-ember-700 uppercase">
-                        None
-                      </span>
-                    )}
-                  </Cell>
-                  <Cell>
-                    <Tag tone={row.status === "VERIFIED" ? "verified" : "pending"}>{row.status}</Tag>
-                  </Cell>
+                  <ReviewRow row={row} canReview={canReview} />
                 </Row>
               ))}
             </Table>
@@ -401,7 +391,7 @@ async function childRows(cut, stateIds, children) {
  * because a Ward Coordinator watching the national feed scroll past would learn
  * nothing about their own ward.
  */
-async function scopedReturns(filter, take) {
+async function scopedReturns(filter, take, viewerId) {
   const rows = await prisma.pollingUnitResult.findMany({
     where: resultsWhere(filter),
     orderBy: { submittedAt: "desc" },
@@ -414,6 +404,8 @@ async function scopedReturns(filter, take) {
       ward: { select: { name: true } },
       votes: { select: { votes: true } },
       sheet: { select: { resultId: true } },
+      note: true,
+      submittedById: true,
     },
   });
 
@@ -426,5 +418,9 @@ async function scopedReturns(filter, take) {
     ward: row.ward.name,
     total: row.votes.reduce((sum, vote) => sum + vote.votes, 0),
     hasSheet: Boolean(row.sheet),
+    note: row.note,
+    /* Nobody checks their own work. Flagged here so the row can say why the
+       buttons are missing rather than just omitting them. */
+    mine: String(row.submittedById) === String(viewerId),
   }));
 }

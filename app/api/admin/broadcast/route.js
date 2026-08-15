@@ -5,7 +5,7 @@ import { currentSession } from "@/lib/session";
 import { can } from "@/lib/permissions";
 import { audienceNumbers, audience } from "@/lib/broadcast";
 import { segments, sendBulk, smsProvider } from "@/lib/sms";
-import { callerKey, limit, tooMany } from "@/lib/ratelimit";
+import { callerKey, limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -54,7 +54,7 @@ export async function POST(request) {
   /* Rate limited by member, not by address: two coordinators on one office wifi
      must not exhaust each other's allowance, and one coordinator on four
      devices must not get four allowances. */
-  const quota = limit("broadcast", `member:${member.id}`);
+  const quota = await limitShared("broadcast", `member:${member.id}`);
   if (!quota.ok) {
     return tooMany(
       quota.retryAfter,

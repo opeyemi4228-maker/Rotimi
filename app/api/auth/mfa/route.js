@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { currentMember } from "@/lib/session";
 import { beginEnrolment, completeEnrolment, disable, mfaState } from "@/lib/mfa";
-import { limit, tooMany } from "@/lib/ratelimit";
+import { limitShared, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -35,7 +35,7 @@ export async function POST(request) {
   const member = await currentMember();
   if (!member) return Response.json({ error: "Sign in first." }, { status: 401 });
 
-  const quota = limit("mfa", `member:${member.id}`);
+  const quota = await limitShared("mfa", `member:${member.id}`);
   if (!quota.ok) return tooMany(quota.retryAfter);
 
   let body;
