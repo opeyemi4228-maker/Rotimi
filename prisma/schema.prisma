@@ -139,10 +139,19 @@ model User {
   passwordHash  String?
   phoneVerified Boolean    @default(false)
   status        UserStatus @default(ACTIVE)
-  // §13.2: MFA is mandatory for state level and above. Stored here so the
-  // requirement has somewhere to live before the TOTP flow is built.
+  // §13.2: MFA is mandatory for state level and above.
   mfaSecret     String?
   mfaEnabled    Boolean    @default(false)
+  /// The last TOTP step this account accepted. A correct code is refused if it
+  /// is for a step already used, so a code read over somebody's shoulder is
+  /// dead the moment its owner has typed it — without this, it stays valid for
+  /// the rest of its 30-second window and the drift allowance either side.
+  mfaLastStep   BigInt?
+  /// Single-use recovery codes, hashed. Mandatory MFA without these means a
+  /// coordinator who loses their phone is locked out of their own territory
+  /// until somebody with database access intervenes.
+  mfaRecovery   String[]   @default([])
+  mfaEnabledAt  DateTime?  @db.Timestamptz
   lastLoginAt   DateTime?  @db.Timestamptz
   createdAt     DateTime   @default(now()) @db.Timestamptz
 

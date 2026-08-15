@@ -10,6 +10,7 @@ import {
   Network,
   Radio,
   Share2,
+  ShieldCheck,
   Gauge,
   MessageSquare,
   UserCheck,
@@ -70,6 +71,9 @@ const ITEMS = [
   { href: "/admin/polling-units", label: "PU Tracker", icon: MapPin, local: true },
   { href: "/admin/structure", label: "Structure", icon: Network },
   { href: "/admin/id-card", label: "ID Card", icon: CreditCard },
+  /* Your own account, not anybody else's. Open to every seat: two-factor is
+     obligatory from state level up and available to all. */
+  { href: "/admin/security", label: "Security", icon: ShieldCheck },
   /* Last, and only for a scope that reads nationwide. It is the one page in the
      secretariat with no territory filter on any of its queries, so it is not
      advertised to anybody who would be refused it. */

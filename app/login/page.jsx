@@ -14,6 +14,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  /* The second factor. Only ever shown after a correct password: the server
+     refuses with mfaRequired and no session, and this is the state that
+     records it. */
+  const [mfa, setMfa] = useState(false);
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(event) {
@@ -30,11 +35,21 @@ export default function Login() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({ identifier, password, ...(code ? { code } : {}) }),
       });
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.mfaRequired) {
+          /* The password was right. Nothing is said about that either way —
+             the field simply appears — but the error, if there is one, is
+             about the code and not the password. */
+          setMfa(true);
+          setError(data.error ?? "");
+          return;
+        }
+        setMfa(false);
+        setCode("");
         setError(data.error ?? "Those details do not match an account.");
         return;
       }
@@ -149,6 +164,37 @@ export default function Login() {
                 </span>
               </div>
             </div>
+
+            {mfa && (
+              <div className="mt-6 border-2 border-ink-950 bg-ink-50 p-5">
+                <label
+                  htmlFor="code"
+                  className="block text-[0.6875rem] font-bold tracking-[0.12em] text-ink-500 uppercase"
+                >
+                  Authentication code
+                </label>
+                <input
+                  id="code"
+                  value={code}
+                  onChange={(event) => {
+                    /* Six digits from the app, or a recovery code with a dash
+                       in it. One field for both: somebody reaching for a
+                       recovery code has lost their phone and does not need a
+                       second decision to make first. */
+                    setCode(event.target.value.replace(/[^0-9A-Za-z-]/g, "").slice(0, 11));
+                    setError("");
+                  }}
+                  autoComplete="one-time-code"
+                  autoFocus
+                  placeholder="000000"
+                  className="mt-2 w-full border-2 border-ink-200 bg-white px-4 py-3 font-mono text-[1.0625rem] tracking-[0.25em] text-ink-950 outline-none focus:border-ink-950"
+                />
+                <p className="mt-2.5 text-[0.75rem] leading-snug text-content-subtle">
+                  The six digits from your authenticator app. Lost your phone? Enter one
+                  of your recovery codes instead — each works once.
+                </p>
+              </div>
+            )}
 
             <Button type="submit" variant="primary" size="lg" full disabled={busy}>
               {busy ? (

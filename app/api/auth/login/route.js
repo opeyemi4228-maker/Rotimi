@@ -10,6 +10,8 @@ import {
   sessionCookieOptions,
 } from "@/lib/auth";
 import { findMemberByPhone, findMemberByEmail, publicMember } from "@/lib/store";
+import { prisma } from "@/lib/db";
+import { challenge } from "@/lib/mfa";
 
 export const runtime = "nodejs";
 
@@ -74,10 +76,62 @@ export async function POST(request) {
     );
   }
 
+  /* ── second factor ──────────────────────────────────────────────────
+     Checked after the password and never before it: asking for a code first
+     would tell an attacker that a given number has an account, and asking for
+     one when the password is wrong would tell them the password was right.
+
+     The password is re-posted with the code rather than held in a server-side
+     challenge. One fewer piece of state, and a stolen code alone is worth
+     nothing without the password that goes with it. */
+  const account = await prisma.user.findUnique({
+    where: { id: BigInt(member.userId) },
+    select: { mfaEnabled: true },
+  });
+
+  if (account?.mfaEnabled) {
+    const code = String(body.code ?? "").trim();
+
+    if (!code) {
+      /* Deliberately not a session. Nothing is set until the second factor is
+         in, so an interrupted sign-in leaves nothing behind. */
+      return NextResponse.json({ mfaRequired: true }, { status: 401 });
+    }
+
+    const second = await challenge(member.userId, code);
+    if (!second.ok) {
+      return NextResponse.json({ mfaRequired: true, error: second.error }, { status: 401 });
+    }
+
+    if (second.usedRecovery) {
+      /* Worth recording and worth telling them: a recovery code being spent is
+         either a lost phone or somebody else in the account, and only the owner
+         knows which. */
+      await prisma.auditLog
+        .create({
+          data: {
+            actorId: BigInt(member.id),
+            action: "MFA_RECOVERY_USED",
+            entityType: "user",
+            entityId: BigInt(member.userId),
+            afterState: { remaining: second.remaining },
+            ipAddress: caller === "unknown" ? null : caller,
+          },
+        })
+        .catch((error) => console.error("[login] audit write failed", error));
+    }
+  }
+
   const store = await cookies();
   /* Cleared on success, so one evening of mistyping a password does not lock
      a coordinator out for the rest of the window. Only failures accumulate. */
   forget("login", caller);
+
+  /* Last sign-in, which the console reports on and an audit needs. It was
+     never being written. */
+  prisma.user
+    .update({ where: { id: BigInt(member.userId) }, data: { lastLoginAt: new Date() } })
+    .catch((error) => console.error("[login] could not record sign-in", error));
 
   store.set(
     SESSION_COOKIE,
@@ -85,5 +139,8 @@ export async function POST(request) {
     sessionCookieOptions
   );
 
-  return NextResponse.json({ member: publicMember(member) });
+  return NextResponse.json({
+    member: publicMember(member),
+    ...(account?.mfaEnabled ? { mfa: true } : {}),
+  });
 }
